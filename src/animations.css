@@ -1,0 +1,215 @@
+/* ============================================================
+   Animations — appended to styles.css via separate sheet
+   ============================================================ */
+
+/* ---------- Custom cursor ---------- */
+html.has-custom-cursor,
+html.has-custom-cursor * { cursor: none !important; }
+
+.cur-dot, .cur-ring {
+  position: fixed; top: 0; left: 0;
+  pointer-events: none; z-index: 9999;
+  will-change: transform;
+}
+.cur-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--ink);
+  margin-left: -3px; margin-top: -3px;
+  mix-blend-mode: difference;
+  transition: width .25s var(--ease), height .25s var(--ease), opacity .25s var(--ease);
+}
+.cur-ring {
+  width: 36px; height: 36px;
+  border: 1px solid rgba(20,17,13,0.4);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--bg);
+  transition: width .35s var(--ease), height .35s var(--ease), background .35s var(--ease), border-color .35s var(--ease), color .35s var(--ease);
+  mix-blend-mode: difference;
+}
+.cur-ring span { opacity: 0; transition: opacity .25s var(--ease); }
+
+.cur-hover.cur-ring { width: 56px; height: 56px; background: var(--bg); border-color: var(--bg); }
+.cur-hover.cur-dot { opacity: 0; }
+
+.cur-view.cur-ring { width: 110px; height: 110px; background: var(--bg); border-color: var(--bg); color: var(--ink); }
+.cur-view.cur-ring span { opacity: 1; color: var(--ink); }
+.cur-view.cur-dot { opacity: 0; }
+
+.cur-drag.cur-ring { width: 80px; height: 80px; background: var(--bg); color: var(--ink); }
+.cur-drag.cur-ring span { opacity: 1; color: var(--ink); }
+.cur-drag.cur-dot { opacity: 0; }
+
+@media (hover: none) {
+  .cur-dot, .cur-ring { display: none !important; }
+  html.has-custom-cursor, html.has-custom-cursor * { cursor: auto !important; }
+}
+
+/* ---------- Magnetic ---------- */
+.magnetic { display: inline-block; }
+.magnetic-inner { display: inline-flex; will-change: transform; }
+
+/* ---------- Parallax ---------- */
+.parallax { transform: translate3d(0, var(--parallax-y, 0), 0); will-change: transform; }
+
+/* ---------- Hero parallax + smoother ken burns ---------- */
+.hero-media .frame { transition: opacity 1.6s var(--ease), transform 1.6s var(--ease); }
+.hero-media .frame.active { animation: heroKB 14s ease-out forwards; }
+@keyframes heroKB {
+  from { transform: scale(1.04) translate3d(0,0,0); }
+  to   { transform: scale(1.18) translate3d(-1.5%, -1%, 0); }
+}
+
+/* Hero foreground content gets a slight parallax lift */
+.hero-inner.parallax { transform: translate3d(0, var(--parallax-y, 0), 0); }
+
+/* ---------- Velocity marquee ---------- */
+.v-marquee {
+  overflow: hidden;
+  padding: 36px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+}
+.v-marquee.dark { border-color: rgba(236,232,223,0.12); color: var(--on-dark); }
+.v-marquee-track {
+  display: flex; gap: 0;
+  white-space: nowrap;
+  align-items: center;
+  width: max-content;
+  will-change: transform;
+}
+.v-marquee-item {
+  display: inline-flex; align-items: center; gap: 56px;
+  padding: 0 28px;
+  font-family: var(--serif);
+  font-size: clamp(40px, 5vw, 84px);
+  font-style: italic;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  font-weight: 400;
+}
+.v-marquee-name { transition: color .3s var(--ease); }
+.v-marquee-mark { color: var(--warm); flex-shrink: 0; transform: rotate(0deg); transition: transform .6s var(--ease); }
+.v-marquee:hover .v-marquee-mark { transform: rotate(180deg); }
+
+/* ---------- Page transition ---------- */
+.page-trans {
+  position: fixed; inset: 0; z-index: 9000;
+  pointer-events: none;
+  display: flex;
+  visibility: hidden;
+}
+.page-trans.page-trans-covering, .page-trans.page-trans-revealing { visibility: visible; }
+.pt-panel {
+  flex: 1;
+  background: var(--ink);
+  transform: scaleY(0);
+  transform-origin: bottom center;
+  transition: transform .5s var(--ease-out);
+}
+.pt-panel.pt-2 { transition-delay: 80ms; background: var(--dark-2); }
+.pt-panel.pt-3 { transition-delay: 160ms; background: var(--ink); }
+
+.page-trans-covering .pt-panel { transform: scaleY(1); transform-origin: bottom; }
+.page-trans-revealing .pt-panel {
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform .5s var(--ease-out);
+}
+.page-trans-revealing .pt-panel.pt-2 { transition-delay: 80ms; }
+.page-trans-revealing .pt-panel.pt-3 { transition-delay: 160ms; }
+
+/* ---------- Hover image with clip-path reveal ---------- */
+.hover-img { position: relative; overflow: hidden; }
+.hover-img .bg { transition: transform 1.4s var(--ease); }
+.hover-img-overlay {
+  position: absolute; inset: 0;
+  background: var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  clip-path: circle(0% at 50% 50%);
+  transition: clip-path .7s var(--ease-out);
+  z-index: 2;
+}
+.hover-img:hover .hover-img-overlay { clip-path: circle(120% at 50% 50%); }
+.hover-img:hover .bg { transform: scale(1.06); }
+.hover-img-label {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(32px, 4vw, 56px);
+  color: var(--on-dark);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .5s var(--ease) .25s, transform .6s var(--ease) .25s;
+}
+.hover-img:hover .hover-img-label { opacity: 1; transform: translateY(0); }
+
+/* ---------- Project card — image overlay with clip-path on hover ---------- */
+.proj-card .img-box::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: rgba(20,17,13,0.55);
+  clip-path: circle(0% at 50% 100%);
+  transition: clip-path .8s var(--ease-out);
+  z-index: 2;
+  pointer-events: none;
+}
+.proj-card:hover .img-box::after { clip-path: circle(140% at 50% 100%); }
+.proj-card .img-box .bg,
+.proj-card .img-box .img-box-img { transition: transform 1.6s var(--ease); }
+.proj-card:hover .img-box .bg,
+.proj-card:hover .img-box .img-box-img { transform: scale(1.08); }
+
+/* ---------- Split text ---------- */
+.split-text { display: inline; }
+.split-word { display: inline-flex; overflow: hidden; vertical-align: top; }
+.split-word > span {
+  display: inline-block;
+  transform: translateY(105%);
+  transition: transform .9s var(--ease-out);
+}
+.split-text.in .split-word > span { transform: translateY(0); }
+
+/* ---------- Animated underline link ---------- */
+.link-arrow::after {
+  background: currentColor;
+  transform-origin: left;
+  transform: scaleX(0);
+  animation: linkUnderlineIn .9s var(--ease) .2s forwards;
+}
+@keyframes linkUnderlineIn { to { transform: scaleX(1); } }
+
+/* ---------- Smoother section enter ---------- */
+.section .sec-head .sh-l > * { animation: secLeft 1s var(--ease-out) both; }
+@keyframes secLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ---------- Image hover scale already on .img-box, stronger now ---------- */
+.img-box .bg,
+.img-box .img-box-img { transition: transform 2s var(--ease); }
+.img-box:hover .bg,
+.img-box:hover .img-box-img { transform: scale(1.06); }
+
+/* ---------- Nav link hover sweep ---------- */
+.nav-center a { overflow: hidden; }
+.nav-center a span.nav-tx { display: inline-block; transition: transform .35s var(--ease); }
+.nav-center a:hover span.nav-tx { transform: translateY(-2px); }
+
+/* ---------- Smooth route enter override ---------- */
+.page { animation: pageInRich .8s var(--ease-out) both; }
+@keyframes pageInRich {
+  from { opacity: 0; filter: blur(6px); transform: translateY(14px); }
+  to { opacity: 1; filter: blur(0); transform: translateY(0); }
+}
+
+/* ---------- Reduce motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .hero-media .frame.active { animation: none; }
+  .page-trans { display: none; }
+  .v-marquee-track { transform: none !important; }
+  .split-word > span { transform: none !important; }
+}
