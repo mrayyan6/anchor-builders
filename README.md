@@ -1,8 +1,8 @@
 # Anchor Associates & Builders — Website
 
-A premium, multi-page React website for **Anchor Associates & Builders** — a C-2 PEC registered construction & contracting firm based in Islamabad.
+A premium, multi-page website for **Anchor Associates & Builders** — a C-2 PEC registered construction & contracting firm based in Islamabad.
 
-Built with **Vite + React 18**. All pages, animations, hover states, the cinematic hero, and the context-aware project swiper are wired up and ready.
+Built with **Next.js 14 (App Router) + React 18**. All pages, animations, hover states, the cinematic hero, and the context-aware project swiper are wired up and ready.
 
 ---
 
@@ -10,185 +10,168 @@ Built with **Vite + React 18**. All pages, animations, hover states, the cinemat
 
 ```
 anchor-site/
+├── next.config.mjs       ← Next.js config (Unsplash image domain)
+├── jsconfig.json
 ├── package.json
-├── vite.config.js
-├── index.html
+├── app/
+│   ├── layout.jsx        ← root layout (fonts, CSS, AppShell)
+│   ├── AppShell.jsx      ← Nav, Footer, PageTransition wrapper
+│   ├── globals.css       ← imports design system + animation styles
+│   ├── not-found.jsx     ← 404 page
+│   ├── page.jsx          ← Home
+│   ├── about/page.jsx
+│   ├── services/
+│   │   ├── page.jsx
+│   │   └── [id]/page.jsx
+│   ├── projects/
+│   │   ├── page.jsx
+│   │   └── [id]/page.jsx
+│   ├── clients/
+│   │   ├── page.jsx
+│   │   └── [id]/page.jsx
+│   └── contact/page.jsx
 └── src/
-    ├── main.jsx          ← entry point
-    ├── App.jsx           ← top-level + hash router
-    ├── data.js           ← projects, clients, services data
-    ├── components.jsx    ← Nav, Footer, Hero, Swiper, etc.
-    ├── animations.jsx    ← Cursor, Magnetic, Parallax, Marquee
-    ├── pages.jsx         ← 10 page components
+    ├── data.js           ← projects, clients, services, testimonials
+    ├── components.jsx    ← Nav, Footer, Hero, Swiper, ImgBox, etc.
+    ├── animations.jsx    ← Magnetic, Parallax, VelocityMarquee, PageTransition
     ├── styles.css        ← design system + layouts
     └── animations.css    ← animation styles
 ```
 
-### Pages included
+### Pages
 
-| Route                         | Page                |
-|-------------------------------|---------------------|
-| `#/`                          | Home                |
-| `#/about`                     | About               |
-| `#/services`                  | Services overview   |
-| `#/services/:id`              | Service detail (6 services) |
-| `#/projects`                  | Projects index + filters |
-| `#/projects/:id`              | Project detail (26 projects) |
-| `#/clients`                   | Clients overview (16 clients) |
-| `#/clients/:id`               | Client detail       |
-| `#/contact`                   | Contact form        |
+| Route | Page |
+|---|---|
+| `/` | Home |
+| `/about` | About |
+| `/services` | Services overview |
+| `/services/:id` | Service detail (6 services) |
+| `/projects` | Projects index + category filter |
+| `/projects/:id` | Project detail (26 projects) |
+| `/clients` | Clients overview (16 clients) |
+| `/clients/:id` | Client detail |
+| `/contact` | Contact form |
 
-The project-detail page is **context-aware**: links from a category page → "More in this category" swiper. Links from a client page → "More from this client" swiper.
+The project-detail page is **context-aware**: arriving from a category → "More in this category" swiper. Arriving from a client page → "More from this client" swiper.
 
 ---
 
-## Step-by-step setup (terminal)
+## Setup
 
-### 1. Prerequisites
+### Prerequisites
 
-You need **Node.js 18+** and **npm**. Check with:
+**Node.js 18+** and **npm**:
 
 ```bash
-node --version    # should print v18.x or higher
+node --version    # v18.x or higher
 npm --version
 ```
 
-If you don't have Node, install it from [nodejs.org](https://nodejs.org) or use `nvm`.
+If Node isn't installed, get it at [nodejs.org](https://nodejs.org).
 
-### 2. Open the project folder
+### Install
 
 ```bash
 cd path/to/anchor-site
-```
-
-(If you downloaded a `.zip`, unzip it first.)
-
-### 3. Install dependencies
-
-```bash
 npm install
 ```
 
-This installs `react`, `react-dom`, `vite`, and the React plugin for Vite. Takes ~30 seconds.
-
-### 4. Start the dev server
+### Dev server
 
 ```bash
 npm run dev
 ```
 
-You'll see:
+Opens at **http://localhost:3000**.
 
-```
-  VITE v5.x  ready in 400 ms
-  ➜  Local:   http://localhost:5173/
-```
-
-Open **http://localhost:5173** — you'll see the exact same site I built.
-
-### 5. Build for production
-
-When you're ready to deploy:
+### Production build
 
 ```bash
-npm run build      # creates /dist with optimized static files
-npm run preview    # locally previews the production build
+npm run build     # outputs to .next/
+npm run start     # serves the production build locally
 ```
-
-The `dist/` folder is a static site — deploy it to Vercel, Netlify, Cloudflare Pages, or any static host.
 
 ---
 
-## Deployment cheat sheet
+## Deployment
 
-**Vercel** (easiest, free)
+**Vercel** (recommended — detects Next.js automatically):
 ```bash
 npx vercel
 ```
-Follow the prompts. Vercel auto-detects Vite.
 
-**Netlify**
-- Drag `dist/` into [app.netlify.com/drop](https://app.netlify.com/drop), or
-- Connect the repo and set build command to `npm run build`, publish dir to `dist`.
-
-**Cloudflare Pages**
+**Netlify / Cloudflare Pages** — connect the repo and set:
 - Build command: `npm run build`
-- Build output: `dist`
+- Output directory: `.next`
 
 ---
 
-## Editing the site
+## Editing content
 
-### Change content (projects, clients, services)
+### Projects, clients, services
 
-Open `src/data.js`. Everything is in plain JavaScript objects:
+Everything lives in `src/data.js` as plain JavaScript objects:
 
 ```js
 const PROJECTS = [
   { id: 'azri', name: 'PARC AZRI Office & Laboratory', ... },
-  // ...
 ];
 ```
 
-Add/remove/edit items here and the site updates automatically.
+Edit, add, or remove entries here and the site updates everywhere.
 
-### Swap stock images for real photos
+### Swap stock photos for real ones
 
-1. Drop your photos in `public/images/` (create the folder).
-2. In `src/data.js`, replace the Unsplash URLs in the `IMG` block with `/images/your-photo.jpg`.
+1. Place photos in `public/images/`.
+2. In `src/data.js`, replace Unsplash URLs in the `IMG` block:
+   ```js
+   archA: '/images/parc-azri.jpg',
+   ```
 
-### Tweak the colors / typography
+### Colours & typography
 
-Open `src/styles.css`. The design tokens live at the top under `:root { ... }`:
+Design tokens are at the top of `src/styles.css`:
 
 ```css
---bg: #f6f4ef;           /* warm off-white */
---ink: #14110d;          /* near-black */
---warm: #b8a888;         /* sand accent */
---warm-deep: #7d6f55;
---serif: 'Cormorant Garamond', serif;
---sans: 'Manrope', sans-serif;
+:root {
+  --bg: #f6f4ef;        /* warm off-white */
+  --ink: #14110d;       /* near-black */
+  --warm: #b8a888;      /* sand accent */
+  --warm-deep: #7d6f55;
+  --serif: 'Cormorant Garamond', serif;
+  --sans: 'Manrope', sans-serif;
+}
 ```
 
-Change these and the whole site re-themes.
+### Hero images & captions
 
-### Change the hero images
+In `app/page.jsx`, edit the `heroFrames` array at the top of `HomePage`:
 
-In `src/pages.jsx`, find `HomePage()` and edit the `heroFrames` array — give each frame an `src` (image URL) and `caption`.
+```js
+const heroFrames = [
+  { src: 'https://...', caption: 'PROJECT NAME · LOCATION' },
+];
+```
 
----
+### Client card hover style
 
-## Converting to Next.js (optional, later)
-
-If you want SSR/SEO (good for a marketing site), Next.js is a straight port:
-
-1. `npx create-next-app@latest anchor-next` (App Router, JavaScript, no Tailwind, no src/, yes ESLint)
-2. Copy `src/components.jsx`, `src/animations.jsx`, `src/pages.jsx`, `src/data.js`, `src/styles.css`, `src/animations.css` into the new project's `app/` folder.
-3. Add `'use client'` at the top of `components.jsx`, `animations.jsx`, and `pages.jsx` (they use browser APIs).
-4. Replace the hash router with Next.js file routing — each page in `pages.jsx` becomes its own route folder under `app/`.
-
-A good prompt for Claude Code:
-
-> "Convert this Vite + React app to Next.js 14 with the App Router. Keep all components and styling. Replace the hash router in App.jsx with Next.js file-system routing — one route per page in pages.jsx. Each page component goes into app/<route>/page.jsx. Mark client components with 'use client'. Keep data.js as a shared file. Use next/image for the Unsplash photos."
+Controlled by `data-hover-style` on `<body>` in `app/AppShell.jsx`. Options: `invert`, `slide`, `lift`, `highlight`, `expand`, `underline`. Currently set to `slide` (black block sweeps in).
 
 ---
 
 ## Troubleshooting
 
-**`npm install` fails** — make sure Node is 18 or higher.
+**Images don't load** — the site uses Unsplash CDN by default. `next/image` proxies them through `/_next/image`. If blocked, swap to local images (see above).
 
-**Page is blank / hash routing not working** — make sure you're visiting `http://localhost:5173` (no trailing `#/` needed; the app handles it).
+**Nav stays transparent** — by design on the home page and individual project pages; it turns solid after scrolling 60px.
 
-**Images don't load** — the site uses Unsplash CDN URLs by default. If your network blocks them, swap to local images (see "Swap stock images").
-
-**Custom cursor doesn't show** — works only on devices with hover support (desktops/laptops). On mobile it's hidden by design.
+**Animations don't fire** — reveal-on-scroll uses `IntersectionObserver`. Disable browser extensions that block JS if you see static content.
 
 ---
 
 ## Credits
 
-- Design + build: 1:1 prototype reference, Harper Construction-inspired
 - Fonts: Cormorant Garamond, Manrope, JetBrains Mono (Google Fonts)
-- Stock imagery: Unsplash (replace with your real project photos before going live)
+- Stock imagery: Unsplash — replace with real project photos before going live
 
 — Built for Abdullah · Anchor Associates & Builders
