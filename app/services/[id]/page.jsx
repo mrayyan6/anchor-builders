@@ -40,19 +40,21 @@ export default function ServiceDetailPage({ params }) {
         </div>
       </section>
 
-      <section className="section warm">
-        <div className="container-wide">
-          <div className="sec-head">
-            <div className="sh-l"><span className="eyebrow"><span className="dot"></span>RECENT WORK</span></div>
-            <div className="sh-r"><h2 className="hd-1">{cat?.name} projects we've delivered.</h2></div>
+      {related.length > 0 && (
+        <section className="section warm">
+          <div className="container-wide">
+            <div className="sec-head">
+              <div className="sh-l"><span className="eyebrow"><span className="dot"></span>RECENT WORK</span></div>
+              <div className="sh-r"><h2 className="hd-1">{cat?.name} projects we've delivered.</h2></div>
+            </div>
           </div>
-        </div>
-        <HorizontalSwiper
-          items={related}
-          label={`${cat?.name} · drag or scroll →`}
-          renderItem={(p) => <ProjectCard project={p} ratio="r-43" />}
-        />
-      </section>
+          <HorizontalSwiper
+            items={related}
+            label={`${cat?.name} · drag or scroll →`}
+            renderItem={(p) => <ProjectCard project={p} ratio="r-43" />}
+          />
+        </section>
+      )}
 
       <CTABlock />
     </main>
