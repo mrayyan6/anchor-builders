@@ -6,36 +6,58 @@ import { NextResponse } from 'next/server';
  * auth cookies back to the browser.
  */
 export async function updateSession(request) {
-  let response = NextResponse.next({ request: { headers: request.headers } });
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const pathname = request.nextUrl.pathname;
+  const isAdminPath = pathname.startsWith('/admin');
+  const isAuthPage = pathname === '/login' || pathname === '/signup';
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error(
+      'Supabase middleware env vars are missing. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in Vercel.'
+    );
+
+    if (isAdminPath) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = '/login';
+      redirectUrl.searchParams.set('next', pathname);
+      return NextResponse.redirect(redirectUrl);
+    }
+
+    return NextResponse.next({ request: { headers: request.headers } });
+  }
+
+  let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
-        get(name) {
-          return request.cookies.get(name)?.value;
+        getAll() {
+          return request.cookies.getAll();
         },
-        set(name, value, options) {
-          request.cookies.set({ name, value, ...options });
-          response = NextResponse.next({ request: { headers: request.headers } });
-          response.cookies.set({ name, value, ...options });
-        },
-        remove(name, options) {
-          request.cookies.set({ name, value: '', ...options });
-          response = NextResponse.next({ request: { headers: request.headers } });
-          response.cookies.set({ name, value: '', ...options });
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => {
+            request.cookies.set(name, value);
+          });
+          response = NextResponse.next({ request });
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options);
+          });
         },
       },
     }
   );
 
   // Refresh token if needed
-  const { data: { user } } = await supabase.auth.getUser();
-
-  const pathname = request.nextUrl.pathname;
-  const isAdminPath = pathname.startsWith('/admin');
-  const isAuthPage = pathname === '/login' || pathname === '/signup';
+  let user = null;
+  try {
+    const { data } = await supabase.auth.getUser();
+    user = data?.user || null;
+  } catch (error) {
+    console.error('Supabase middleware session refresh failed:', error?.message || error);
+  }
 
   // Gate /admin/* — anonymous users get bounced to /login (with ?next=...)
   if (isAdminPath && !user) {
