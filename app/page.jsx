@@ -25,8 +25,7 @@ export default function HomePage() {
       <Hero
         frames={heroFrames}
         eyebrow="ANCHOR ASSOCIATES & BUILDERS"
-        title="A proud tradition of service since 2010."
-        sub="Headquartered in Islamabad, Anchor Associates & Builders has spent fifteen years earning a reputation that Pakistan's most demanding clients recognise and trust — across government, institutional and private delivery."
+        title="A proud tradition of service"
       />
 
       {/* Intro / proud tradition */}
