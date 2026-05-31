@@ -157,11 +157,14 @@ function ImgBox({ src, ratio = 'r-43', alt = '', className = '', label = '', pri
 }
 
 // ---------- Project card ----------
-function ProjectCard({ project, ratio = 'r-43' }) {
+// `href` lets callers override the link target. Defaults to the public
+// /projects index so legacy callers (services/clients related lists)
+// remain functional after the routes were migrated to slug-based paths.
+function ProjectCard({ project, ratio = 'r-43', href }) {
   const cat = SITE_DATA.byId(SITE_DATA.CATEGORIES, project.categoryId);
   return (
     <Link
-      href={`/projects/${project.id}?from=cat&id=${project.categoryId}`}
+      href={href || '/projects'}
       className="proj-card"
       data-cursor="view"
       data-cursor-label="View"

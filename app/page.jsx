@@ -1,14 +1,16 @@
-'use client';
 import React from 'react';
 import Link from 'next/link';
 import { SITE_DATA } from '../src/data';
 import {
-  Reveal, ImgBox, ProjectCard, HorizontalSwiper, Hero, ClientMarquee, CTABlock, QuoteBlock,
+  Reveal, ImgBox, Hero, ClientMarquee, CTABlock, QuoteBlock,
 } from '../src/components';
+import HomeFeatured from './HomeFeatured';
+import { getFeaturedProjects } from '../lib/queries';
 
-export default function HomePage() {
-  const featured = ['azri', 'alkaram', 'callctr', 'intelligent', 'chajees', 'kingdom']
-    .map(id => SITE_DATA.byId(SITE_DATA.PROJECTS, id));
+export const dynamic = 'force-dynamic';
+
+export default async function HomePage() {
+  const featured = await getFeaturedProjects(6);
 
   const heroFrames = [
     { src: SITE_DATA.IMG.archA, caption: 'PARC AZRI · UMERKOT, SINDH' },
@@ -119,26 +121,24 @@ export default function HomePage() {
       </section>
 
       {/* Featured projects */}
-      <section className="section dark">
-        <div className="container-wide">
-          <div className="sec-head">
-            <div className="sh-l"><span className="eyebrow dark"><span className="dot"></span>SELECTED WORK</span></div>
-            <div className="sh-r" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 24 }}>
-              <div>
-                <h2 className="hd-1" style={{ color: 'var(--on-dark)' }}>We take pride in<br/>the projects we've done.</h2>
-                <p className="lede" style={{ color: 'rgba(236,232,223,0.7)', marginTop: 16 }}>From large-scale civil works to highly specialist builds, every project is an institution's investment in its own future — and we treat it accordingly.</p>
+      {featured.length > 0 && (
+        <section className="section dark">
+          <div className="container-wide">
+            <div className="sec-head">
+              <div className="sh-l"><span className="eyebrow dark"><span className="dot"></span>SELECTED WORK</span></div>
+              <div className="sh-r" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 24 }}>
+                <div>
+                  <h2 className="hd-1" style={{ color: 'var(--on-dark)' }}>We take pride in<br/>the projects we've done.</h2>
+                  <p className="lede" style={{ color: 'rgba(236,232,223,0.7)', marginTop: 16 }}>From large-scale civil works to highly specialist builds, every project is an institution's investment in its own future — and we treat it accordingly.</p>
+                </div>
+                <Link href="/projects" className="link-arrow" style={{ color: 'var(--on-dark)' }}>View all projects</Link>
               </div>
-              <Link href="/projects" className="link-arrow" style={{ color: 'var(--on-dark)' }}>View all projects</Link>
             </div>
           </div>
-        </div>
 
-        <HorizontalSwiper
-          items={featured}
-          label="Featured projects · drag or scroll →"
-          renderItem={(p) => <ProjectCard project={p} ratio="r-tall" />}
-        />
-      </section>
+          <HomeFeatured items={featured} />
+        </section>
+      )}
 
       {/* Client marquee + preview */}
       <section className="section">

@@ -61,7 +61,7 @@ export default function ClientDetailPage({ params }) {
             {projects.map((p, i) => (
               <Reveal key={p.id} delay={(i % 3) * 80}>
                 <Link
-                  href={`/projects/${p.id}?from=client&id=${client.id}`}
+                  href="/projects"
                   className="proj-card"
                   data-cursor="view"
                   data-cursor-label="View"
