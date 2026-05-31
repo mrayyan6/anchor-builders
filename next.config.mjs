@@ -2,10 +2,14 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    remotePatterns: [
-      { protocol: 'https', hostname: 'images.unsplash.com' },
-    ],
-  },
+  remotePatterns: [
+    {
+      protocol: 'https',
+      hostname: 'bqhqlzmcshiuvlbcjkud.supabase.co',
+      port: '',
+      pathname: '/storage/v1/object/public/**',
+    },
+  ],
+},
 };
-
 export default nextConfig;

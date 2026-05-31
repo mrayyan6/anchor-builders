@@ -2,51 +2,52 @@
 
 export const SITE_DATA = (function () {
 
-  // ===== Image pool — Unsplash construction/architecture stock =====
-  // Each project gets a hero + 3-4 gallery images
+  // ===== Image pool — local featured photos (public/featured/*.jpg) =====
+  // 20 source files cycled across the named keys below. Swap individual
+  // entries below to map specific photos to specific project slots.
   const IMG = {
     // architectural / building exteriors
-    archA: 'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1600&q=80',
-    archB: 'https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1600&q=80',
-    archC: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1600&q=80',
-    archD: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1600&q=80',
-    archE: 'https://images.unsplash.com/photo-1511818966892-d7d671e672a2?w=1600&q=80',
-    archF: 'https://images.unsplash.com/photo-1448630360428-65456885c650?w=1600&q=80',
-    archG: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=1600&q=80',
+    archA: '/featured/01.jpg',
+    archB: '/featured/02.jpg',
+    archC: '/featured/03.jpg',
+    archD: '/featured/04.jpg',
+    archE: '/featured/05.jpg',
+    archF: '/featured/06.jpg',
+    archG: '/featured/07.jpg',
     // construction sites
-    constA: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1600&q=80',
-    constB: 'https://images.unsplash.com/photo-1517646287270-a5a9ca602e5c?w=1600&q=80',
-    constC: 'https://images.unsplash.com/photo-1565008576549-57569a49371d?w=1600&q=80',
-    constD: 'https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1600&q=80',
-    constE: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=1600&q=80',
+    constA: '/featured/08.jpg',
+    constB: '/featured/09.jpg',
+    constC: '/featured/10.jpg',
+    constD: '/featured/11.jpg',
+    constE: '/featured/12.jpg',
     // interiors
-    intA: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600&q=80',
-    intB: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=1600&q=80',
-    intC: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1600&q=80',
-    intD: 'https://images.unsplash.com/photo-1604328698692-f76ea9498e76?w=1600&q=80',
-    intE: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1600&q=80',
+    intA: '/featured/13.jpg',
+    intB: '/featured/14.jpg',
+    intC: '/featured/15.jpg',
+    intD: '/featured/16.jpg',
+    intE: '/featured/17.jpg',
     // industrial / warehouse / agri
-    indA: 'https://images.unsplash.com/photo-1518833895646-04b41dd0f63a?w=1600&q=80',
-    indB: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=1600&q=80',
-    indC: 'https://images.unsplash.com/photo-1592833167001-55c4f3884a91?w=1600&q=80',
+    indA: '/featured/18.jpg',
+    indB: '/featured/19.jpg',
+    indC: '/featured/20.jpg',
     // greenhouses / glass
-    greenA: 'https://images.unsplash.com/photo-1586771107445-d3ca888129ce?w=1600&q=80',
-    greenB: 'https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?w=1600&q=80',
+    greenA: '/featured/01.jpg',
+    greenB: '/featured/02.jpg',
     // residential
-    resA: 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=1600&q=80',
-    resB: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1600&q=80',
-    resC: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?w=1600&q=80',
+    resA: '/featured/03.jpg',
+    resB: '/featured/04.jpg',
+    resC: '/featured/05.jpg',
     // canopy / structure
-    canA: 'https://images.unsplash.com/photo-1473773508845-188df298d2d1?w=1600&q=80',
-    canB: 'https://images.unsplash.com/photo-1429497419816-9ca5cfb4571a?w=1600&q=80',
+    canA: '/featured/06.jpg',
+    canB: '/featured/07.jpg',
     // theatre / studio
-    studA: 'https://images.unsplash.com/photo-1503095396549-807759245b35?w=1600&q=80',
-    studB: 'https://images.unsplash.com/photo-1485217988980-11786ced9454?w=1600&q=80',
+    studA: '/featured/08.jpg',
+    studB: '/featured/09.jpg',
     // people / team
-    teamA: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1200&q=80',
-    teamB: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=1200&q=80',
-    teamC: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80',
-    teamD: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1200&q=80',
+    teamA: '/featured/10.jpg',
+    teamB: '/featured/11.jpg',
+    teamC: '/featured/12.jpg',
+    teamD: '/featured/13.jpg',
   };
 
   // ===== Categories =====

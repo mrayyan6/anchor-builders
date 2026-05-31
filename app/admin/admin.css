@@ -3,12 +3,54 @@
    Matches Cormorant / Manrope / JetBrains Mono + warm palette.
    ============================================================ */
 
-/* ---------- Login ---------- */
+/* ---------- Login / Signup ---------- */
 .login-page { min-height: 100vh; min-height: 100svh; display: flex; align-items: center; justify-content: center; padding: 120px var(--gutter) 60px; background: var(--bg); }
 .login-shell { width: 100%; max-width: 480px; }
 .login-card { background: var(--bg); border: 1px solid var(--line); padding: 48px 36px; }
 .login-head { margin-bottom: 32px; }
 .login-form { display: flex; flex-direction: column; gap: 22px; }
+
+.password-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.password-input-wrap input {
+  padding-right: 44px !important;
+  flex: 1;
+}
+.password-toggle {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 8px;
+  color: var(--ink-3);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color .2s var(--ease);
+}
+.password-toggle:hover { color: var(--ink); }
+.password-toggle:focus-visible { outline: 1px solid var(--ink); outline-offset: 2px; }
+
+.auth-footer {
+  font-size: 13px;
+  color: var(--ink-3);
+  border-top: 1px solid var(--line);
+  padding-top: 18px;
+  margin-top: 6px;
+}
+.auth-footer a {
+  color: var(--ink);
+  font-weight: 500;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 1px;
+}
+.auth-footer a:hover { color: var(--warm-deep); border-color: var(--warm-deep); }
 
 /* ---------- Admin shell ---------- */
 .admin-shell {

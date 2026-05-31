@@ -5,52 +5,54 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '../../utils/supabase/client';
 import PasswordField from '../../src/PasswordField';
 
-export default function LoginForm({ next }) {
+export default function SignupForm() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [info, setInfo] = useState('');
 
   async function onSubmit(e) {
     e.preventDefault();
     setError('');
-    if (!email.trim() || !password) {
-      setError('Email and password are required.');
+    setInfo('');
+
+    if (!email.trim() || !password || !confirm) {
+      setError('All fields are required.');
       return;
     }
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters.');
+      return;
+    }
+    if (password !== confirm) {
+      setError('Passwords do not match.');
+      return;
+    }
+
     setBusy(true);
     const supabase = createClient();
-    const { data, error: signInErr } = await supabase.auth.signInWithPassword({
+    const { data, error: signUpErr } = await supabase.auth.signUp({
       email: email.trim(),
       password,
     });
-    if (signInErr) {
-      setBusy(false);
-      setError(signInErr.message || 'Sign-in failed.');
+    setBusy(false);
+
+    if (signUpErr) {
+      setError(signUpErr.message || 'Sign-up failed.');
       return;
     }
 
-    // Decide where to send the user based on their profile role.
-    let dest = next || '/';
-    try {
-      const userId = data?.user?.id;
-      if (userId) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', userId)
-          .single();
-        if (!next) {
-          dest = profile?.role === 'admin' ? '/admin' : '/';
-        }
-      }
-    } catch {
-      // ignore — fall back to default destination
+    // If email confirmation is required by the Supabase project, the session
+    // will be null and the user needs to verify before signing in.
+    if (!data?.session) {
+      setInfo('Account created. Check your email to verify your address, then sign in.');
+      return;
     }
 
-    setBusy(false);
-    router.replace(dest);
+    router.replace('/');
     router.refresh();
   }
 
@@ -71,11 +73,20 @@ export default function LoginForm({ next }) {
         label="Password"
         value={password}
         onChange={setPassword}
-        autoComplete="current-password"
+        autoComplete="new-password"
+        required
+      />
+
+      <PasswordField
+        label="Confirm password"
+        value={confirm}
+        onChange={setConfirm}
+        autoComplete="new-password"
         required
       />
 
       {error && <div className="form-error" role="alert">{error}</div>}
+      {info && <div className="form-flash" role="status">{info}</div>}
 
       <button
         type="submit"
@@ -83,12 +94,12 @@ export default function LoginForm({ next }) {
         disabled={busy}
         style={{ alignSelf: 'flex-start' }}
       >
-        <span>{busy ? 'Signing in…' : 'Sign in'}</span>
+        <span>{busy ? 'Creating account…' : 'Create account'}</span>
         <span className="arr"></span>
       </button>
 
       <div className="auth-footer">
-        New to Anchor? <Link href="/signup">Create an account</Link>
+        Already have an account? <Link href="/login">Sign in</Link>
       </div>
     </form>
   );

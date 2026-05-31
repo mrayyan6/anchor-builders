@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "import:projects": "node scripts/import-project-images.js"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",
@@ -17,6 +18,7 @@
   },
   "devDependencies": {
     "eslint": "^8.57.1",
-    "eslint-config-next": "^14.2.5"
+    "eslint-config-next": "^14.2.5",
+    "pdf-parse": "^2.4.5"
   }
 }

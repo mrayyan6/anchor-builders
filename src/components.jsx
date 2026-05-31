@@ -32,7 +32,7 @@ const NAV_ITEMS = [
   { href: '/contact', label: 'Contact' },
 ];
 
-function Nav({ transparent = true }) {
+function Nav({ transparent = true, auth = null }) {
   const pathname = usePathname() || '/';
   const [solid, setSolid] = useState(!transparent);
   const [open, setOpen] = useState(false);
@@ -65,6 +65,7 @@ function Nav({ transparent = true }) {
         <div className="nav-right">
           <span className="nav-time">EST. 2010 · ISB</span>
           <Link className="cta" href="/contact"><span>Get a quote ↗</span></Link>
+          <NavAuth auth={auth} />
           <button className={`nav-burger${open ? ' open' : ''}`} onClick={() => setOpen(o => !o)} aria-label="Menu"><span></span></button>
         </div>
       </header>
@@ -77,12 +78,54 @@ function Nav({ transparent = true }) {
           ))}
         </nav>
         <div className="mm-foot">
+          <NavAuth auth={auth} mobile onAfter={() => setOpen(false)} />
           <span>+92 334 7999336</span>
           <span>anchorassociates.builders@gmail.com</span>
           <span>Islamabad, Pakistan</span>
         </div>
       </div>
     </>
+  );
+}
+
+/**
+ * Auth controls shown in the nav. State source is the `auth` prop, fetched
+ * server-side in the root layout. Logout posts to the existing /auth/signout
+ * route handler which calls supabase.auth.signOut() and redirects to /login.
+ */
+function NavAuth({ auth, mobile = false, onAfter }) {
+  if (!auth) {
+    return (
+      <Link
+        href="/login"
+        className={mobile ? 'mm-auth-link' : 'cta nav-auth'}
+        onClick={onAfter}
+      >
+        <span>Sign in ↗</span>
+      </Link>
+    );
+  }
+  return (
+    <span className={mobile ? 'mm-auth-group' : 'nav-auth-group'}>
+      {auth.role === 'admin' && (
+        <Link
+          href="/admin"
+          className={mobile ? 'mm-auth-link' : 'cta nav-auth'}
+          onClick={onAfter}
+        >
+          <span>Admin panel ↗</span>
+        </Link>
+      )}
+      <form action="/auth/signout" method="post" style={{ display: 'inline' }}>
+        <button
+          type="submit"
+          className={mobile ? 'mm-auth-link' : 'cta nav-auth nav-auth-ghost'}
+          onClick={onAfter}
+        >
+          <span>Log out</span>
+        </button>
+      </form>
+    </span>
   );
 }
 

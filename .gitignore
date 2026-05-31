@@ -6,3 +6,5 @@ out
 .env
 .env.local
 *.log
+Pics\CONTENT FOR WEBSITE\PROJECTS WITH PICTURES/*
+scripts/*

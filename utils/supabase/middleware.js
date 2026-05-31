@@ -35,8 +35,9 @@ export async function updateSession(request) {
 
   const pathname = request.nextUrl.pathname;
   const isAdminPath = pathname.startsWith('/admin');
-  const isLoginPath = pathname === '/login';
+  const isAuthPage = pathname === '/login' || pathname === '/signup';
 
+  // Gate /admin/* — anonymous users get bounced to /login (with ?next=...)
   if (isAdminPath && !user) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = '/login';
@@ -44,9 +45,11 @@ export async function updateSession(request) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  if (isLoginPath && user) {
+  // Already-signed-in users hitting /login or /signup go to /
+  // (the /login page itself does a role-based redirect to /admin where appropriate).
+  if (isAuthPage && user) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = '/admin';
+    redirectUrl.pathname = '/';
     redirectUrl.search = '';
     return NextResponse.redirect(redirectUrl);
   }

@@ -196,10 +196,28 @@ ul { list-style: none; }
 .nav-center a.active::before { opacity: 1; }
 
 .nav-right { display: flex; justify-content: flex-end; align-items: center; gap: 18px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
-.nav-right .cta { padding: 10px 18px; border: 1px solid currentColor; border-radius: 999px; transition: all .3s var(--ease); }
+.nav-right .cta { padding: 10px 18px; border: 1px solid currentColor; border-radius: 999px; transition: all .3s var(--ease); font-family: inherit; font-size: inherit; letter-spacing: inherit; text-transform: inherit; color: inherit; background: transparent; cursor: pointer; }
 .nav-right .cta:hover { background: currentColor; }
 .nav-right .cta:hover span { color: var(--ink); }
 .nav.solid .nav-right .cta:hover span { color: var(--bg); }
+
+/* Auth controls inside .nav-right — sit alongside the existing CTA */
+.nav-auth-group { display: inline-flex; align-items: center; gap: 8px; }
+
+/* Mobile menu auth controls — match mono pill style of mm-foot */
+.mm-auth-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; opacity: 1; }
+.mm-auth-link {
+  display: inline-flex; align-items: center;
+  padding: 9px 16px;
+  border: 1px solid rgba(236,232,223,0.4);
+  border-radius: 999px;
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--on-dark); background: transparent;
+  width: fit-content; cursor: pointer;
+  transition: all .3s var(--ease);
+}
+.mm-auth-link:hover { background: var(--on-dark); color: var(--ink); }
 
 .nav-burger { display: none; width: 40px; height: 40px; align-items: center; justify-content: center; }
 .nav-burger span { width: 22px; height: 1.5px; background: currentColor; position: relative; transition: all .3s var(--ease); }
