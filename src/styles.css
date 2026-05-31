@@ -247,7 +247,15 @@ ul { list-style: none; }
 .reveal-img.in { opacity: 1; transform: scale(1); }
 
 /* ---------- Hero ---------- */
-.hero { position: relative; min-height: 100vh; height: 100vh; min-height: 720px; overflow: hidden; color: var(--on-dark); display: flex; flex-direction: column; }
+.hero {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;       /* mobile-safe viewport */
+  overflow: hidden;          /* contains the ken-burns image */
+  color: var(--on-dark);
+  display: flex;
+  flex-direction: column;
+}
 .hero-media { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
 .hero-media .frame { position: absolute; inset: 0; opacity: 0; transition: opacity 1.6s var(--ease); transform: scale(1.05); animation: heroKenBurns 12s linear infinite; }
 .hero-media .frame.active { opacity: 1; }
@@ -258,11 +266,41 @@ ul { list-style: none; }
 }
 .hero-media::after { content:''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20,17,13,0.5) 0%, rgba(20,17,13,0.1) 30%, rgba(20,17,13,0.65) 100%); }
 
-.hero-inner { position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 120px var(--gutter) 48px; }
-.hero-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
-.hero-mid { display: flex; flex-direction: column; gap: 28px; max-width: 22ch; }
-.hero-mid .hd-display { color: var(--on-dark); }
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 120px var(--gutter) 56px;
+  width: 100%;
+  max-width: 100%;
+}
+.hero-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; flex-wrap: wrap; }
+.hero-mid {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-width: min(960px, 100%);
+}
+.hero-mid .hd-display {
+  color: var(--on-dark);
+  /* max-width applied in the h1's own font (ch) so the title gets a sensible line length without forcing word-per-line wrap */
+  max-width: 16ch;
+}
 .hero-mid .hd-display i { color: #d9c8a8; }
+.hero-sub {
+  color: rgba(236,232,223,0.85);
+  max-width: 52ch;
+}
+.hero-ctas {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
 .hero-foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
 .hero-foot .hero-counter { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--on-dark); opacity: 0.85; }
 .hero-foot .hero-counter b { color: var(--warm); font-weight: 500; }
@@ -274,6 +312,29 @@ ul { list-style: none; }
   0% { top: 0; opacity: 0; }
   30% { opacity: 1; }
   100% { top: 44px; opacity: 0; }
+}
+
+/* ---------- Hero responsive ---------- */
+@media (max-width: 1100px) {
+  .hero-inner { padding: 116px var(--gutter) 48px; }
+  .hero-mid .hd-display { max-width: 18ch; font-size: clamp(48px, 8.5vw, 104px); }
+}
+@media (max-width: 900px) {
+  .hero-inner { padding: 110px var(--gutter) 44px; gap: 28px; }
+  .hero-mid { max-width: 100%; }
+  .hero-mid .hd-display { max-width: 100%; font-size: clamp(44px, 9.5vw, 84px); }
+  .hero-sub { font-size: 16px; }
+}
+@media (max-width: 640px) {
+  .hero { min-height: 92vh; min-height: 92svh; }
+  .hero-inner { padding: 100px var(--gutter) 40px; gap: 24px; }
+  .hero-top .eyebrow:last-child { display: none; }
+  .hero-mid { gap: 20px; }
+  .hero-mid .hd-display { font-size: clamp(40px, 11vw, 68px); line-height: 1; }
+  .hero-ctas .btn { padding: 14px 22px; font-size: 12px; }
+  .hero-foot { gap: 12px; }
+  .hero-foot .hero-meta { display: none; }
+  .scroll-cue { display: none; }
 }
 
 /* ---------- Sections ---------- */

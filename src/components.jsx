@@ -289,8 +289,10 @@ function Hero({ frames, eyebrow, title, sub }) {
         </div>
         <div className="hero-mid">
           <h1 className="hd-display">{title}</h1>
-          <p className="lede" style={{ color: 'rgba(236,232,223,0.85)', maxWidth: '52ch' }}>{sub}</p>
-          <div style={{ display: 'flex', gap: 12, marginTop: 14, flexWrap: 'wrap' }}>
+          {sub && (
+            <p className="hero-sub lede">{sub}</p>
+          )}
+          <div className="hero-ctas">
             <Magnetic strength={0.4}><Link href="/projects" className="btn btn-on-dark" data-cursor="hover"><span>See the work</span><span className="arr"></span></Link></Magnetic>
             <Magnetic strength={0.4}><Link href="/contact" className="btn btn-ghost-dark" data-cursor="hover"><span>Start a project</span><span className="arr"></span></Link></Magnetic>
           </div>
