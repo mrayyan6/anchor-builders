@@ -50,7 +50,7 @@ export default async function CategoryPage({ params }) {
                     data-cursor="view"
                     data-cursor-label="View"
                   >
-                    <div className={`img-box ${i % 5 === 0 ? 'r-tall' : 'r-43'}`}>
+                    <div className="img-box r-43">
                       {p.cover_image_url ? (
                         <Image
                           src={p.cover_image_url}

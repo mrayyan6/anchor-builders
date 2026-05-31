@@ -85,13 +85,18 @@ export default function ProjectsClient({ initialProjects, categories, filterCat 
     return fd;
   }
 
-  function run(action, fd) {
+  function run(action, fd, options = {}) {
     setError('');
     setFlash('');
     startTransition(async () => {
       const res = await action(fd);
       if (res?.error) { setError(res.error); return; }
       cancel();
+      const projectId = options.projectId || res?.id;
+      if (options.goToImages && projectId) {
+        router.push(`/admin/projects/${projectId}/images`);
+        return;
+      }
       setFlash('Saved.');
       router.refresh();
     });
@@ -101,14 +106,16 @@ export default function ProjectsClient({ initialProjects, categories, filterCat 
     e.preventDefault();
     if (!draft.title.trim()) return setError('Title is required.');
     if (!draft.category_id) return setError('Category is required.');
-    run(createProject, build());
+    const goToImages = e.nativeEvent.submitter?.dataset?.afterSave === 'images';
+    run(createProject, build(), { goToImages });
   }
 
   function onEditSubmit(e) {
     e.preventDefault();
     if (!draft.title.trim()) return setError('Title is required.');
     if (!draft.category_id) return setError('Category is required.');
-    run(updateProject, build({ id: editingId }));
+    const goToImages = e.nativeEvent.submitter?.dataset?.afterSave === 'images';
+    run(updateProject, build({ id: editingId }), { goToImages, projectId: editingId });
   }
 
   function onDelete(p) {
@@ -148,6 +155,9 @@ export default function ProjectsClient({ initialProjects, categories, filterCat 
             <button type="submit" className="btn btn-primary" disabled={pending}>
               <span>{pending ? 'Saving…' : 'Create'}</span>
             </button>
+            <button type="submit" className="btn btn-ghost" data-after-save="images" disabled={pending}>
+              <span>Create and add images</span>
+            </button>
             <button type="button" className="btn btn-ghost" onClick={cancel} disabled={pending}>
               <span>Cancel</span>
             </button>
@@ -181,6 +191,9 @@ export default function ProjectsClient({ initialProjects, categories, filterCat 
                       <div className="admin-form-actions">
                         <button type="submit" className="btn btn-primary" disabled={pending}>
                           <span>{pending ? 'Saving…' : 'Save'}</span>
+                        </button>
+                        <button type="submit" className="btn btn-ghost" data-after-save="images" disabled={pending}>
+                          <span>Save and manage images</span>
                         </button>
                         <button type="button" className="btn btn-ghost" onClick={cancel} disabled={pending}>
                           <span>Cancel</span>

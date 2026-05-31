@@ -45,10 +45,7 @@ export default function ProjectsExplorer({ categories, projects }) {
             <div className="db-proj-grid">
               {filtered.map((p, i) => (
                 <Reveal key={p.id} delay={(i % 3) * 80}>
-                  <DbProjectCard
-                    project={p}
-                    ratio={i % 5 === 0 ? 'r-tall' : 'r-43'}
-                  />
+                  <DbProjectCard project={p} />
                 </Reveal>
               ))}
             </div>

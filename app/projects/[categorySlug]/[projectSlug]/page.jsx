@@ -16,6 +16,12 @@ export async function generateMetadata({ params }) {
   };
 }
 
+function getImageGridSpanClass(index, total) {
+  const isLast = index === total - 1;
+  const isOdd = total % 2 === 1;
+  return isOdd && isLast ? 'span2' : '';
+}
+
 export default async function ProjectDetailPage({ params }) {
   const data = await getProjectDetail(params.categorySlug, params.projectSlug);
   if (!data) notFound();
@@ -81,13 +87,13 @@ export default async function ProjectDetailPage({ params }) {
           <div className="container-wide">
             <div className="pd-gallery">
               {gallery.map((g, i) => (
-                <Reveal key={g.id} mode="image" className={i === 0 ? 'span2' : ''}>
-                  <div className={`img-box ${i === 0 ? 'r-169' : 'r-43'}`}>
+                <Reveal key={g.id} mode="image" className={getImageGridSpanClass(i, gallery.length)}>
+                  <div className="img-box r-43">
                     <Image
                       src={g.public_url}
                       alt={g.alt_text || project.title}
                       fill
-                      sizes={i === 0 ? '100vw' : '(max-width: 800px) 100vw, 50vw'}
+                      sizes="(max-width: 800px) 100vw, 50vw"
                       className="img-box-img"
                     />
                   </div>

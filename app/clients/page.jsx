@@ -4,6 +4,16 @@ import Link from 'next/link';
 import { SITE_DATA } from '../../src/data';
 import { Reveal, CTABlock } from '../../src/components';
 
+function getClientGridSpanClass(index, total) {
+  const remainder = total % 3;
+  const isLast = index === total - 1;
+  const isSecondLast = index === total - 2;
+
+  if (remainder === 1 && isLast) return 'client-span-full';
+  if (remainder === 2 && (isSecondLast || isLast)) return 'client-span-half';
+  return '';
+}
+
 export default function ClientsPage() {
   const grouped = ['Government', 'Retainer', 'Private'].map(s => ({
     sector: s,
@@ -50,8 +60,8 @@ export default function ClientsPage() {
               </div>
             </div>
             <div className="clients-grid">
-              {g.list.map(c => (
-                <Link key={c.id} href={`/clients/${c.id}`} className={`client-card${gi % 2 === 1 ? ' warm-bg' : ''}`}>
+              {g.list.map((c, i) => (
+                <Link key={c.id} href={`/clients/${c.id}`} className={`client-card ${getClientGridSpanClass(i, g.list.length)}${gi % 2 === 1 ? ' warm-bg' : ''}`}>
                   <div className="cc-meta"><span>SINCE {c.since}</span><span>{c.projects} {c.projects === 1 ? 'PROJECT' : 'PROJECTS'}</span></div>
                   <span className="cc-arrow">↗</span>
                   <div className="cc-name-wrap">
