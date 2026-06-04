@@ -19,10 +19,11 @@
   --on-dark: #ece8df;
   --on-dark-mute: rgba(236,232,223,0.55);
 
-  /* Type */
-  --serif: 'Cormorant Garamond', 'Tenor Sans', Georgia, serif;
-  --sans: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
-  --mono: 'JetBrains Mono', 'IBM Plex Mono', monospace;
+  /* Type — --font-* are provided by next/font (see app/layout.jsx); the
+     literal family names remain as fallbacks if the variables are absent. */
+  --serif: var(--font-serif), 'Cormorant Garamond', 'Tenor Sans', Georgia, serif;
+  --sans: var(--font-sans), 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: var(--font-mono), 'JetBrains Mono', 'IBM Plex Mono', monospace;
 
   /* Spacing scale */
   --pad-xs: 12px;

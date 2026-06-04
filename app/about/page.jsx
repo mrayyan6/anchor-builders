@@ -1,7 +1,8 @@
-'use client';
 import React from 'react';
 import { SITE_DATA } from '../../src/data';
 import { Reveal, ImgBox, CTABlock } from '../../src/components';
+
+export const metadata = { title: 'About — Anchor Associates & Builders' };
 
 export default function AboutPage() {
   const milestones = [

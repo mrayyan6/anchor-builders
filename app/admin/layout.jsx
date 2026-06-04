@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '../../utils/supabase/server';
 import AdminNav from './AdminNav';
+import './admin.css';
 
 export const metadata = { title: 'Admin — Anchor' };
 

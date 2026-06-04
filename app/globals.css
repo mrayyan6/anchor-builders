@@ -1,3 +1,5 @@
 @import '../src/styles.css';
 @import '../src/animations.css';
-@import './admin/admin.css';
+/* admin.css is NOT imported globally — it only styles /admin, /login and
+   /signup, so it is imported directly by those route segments instead. This
+   keeps its rules out of the public marketing pages' CSS (less unused CSS). */

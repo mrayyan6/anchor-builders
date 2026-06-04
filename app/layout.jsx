@@ -1,7 +1,30 @@
 import React from 'react';
+import { Cormorant_Garamond, Manrope, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import AppShell from './AppShell';
 import { createClient } from '../utils/supabase/server';
+
+// Self-hosted, render-blocking-free font loading via next/font. Mirrors the
+// previous Google Fonts <link> (same families/weights/styles) but eliminates
+// the external fonts.googleapis.com + fonts.gstatic.com round-trips and adds
+// automatic font-display: swap + size-adjust fallbacks (reduces FCP/LCP/CLS).
+const serif = Cormorant_Garamond({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  style: ['normal', 'italic'],
+  display: 'swap',
+  variable: '--font-serif',
+});
+const sans = Manrope({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-sans',
+});
+const mono = JetBrains_Mono({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-mono',
+});
 
 export const metadata = {
   title: 'Anchor Associates & Builders — Construction & Contracting · Pakistan',
@@ -25,15 +48,7 @@ export default async function RootLayout({ children }) {
   const auth = await getAuth();
 
   return (
-    <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang="en" className={`${serif.variable} ${sans.variable} ${mono.variable}`}>
       <body>
         <AppShell auth={auth}>{children}</AppShell>
       </body>

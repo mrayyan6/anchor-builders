@@ -2,6 +2,7 @@ import React from 'react';
 import SignupForm from './SignupForm';
 import { createClient } from '../../utils/supabase/server';
 import { redirect } from 'next/navigation';
+import '../admin/admin.css';
 
 export const metadata = { title: 'Create an account — Anchor' };
 

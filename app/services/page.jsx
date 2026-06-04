@@ -1,8 +1,9 @@
-'use client';
 import React from 'react';
 import Link from 'next/link';
 import { SITE_DATA } from '../../src/data';
 import { Reveal, ImgBox, CTABlock } from '../../src/components';
+
+export const metadata = { title: 'Services — Anchor Associates & Builders' };
 
 export default function ServicesPage() {
   return (

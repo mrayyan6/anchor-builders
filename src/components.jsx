@@ -308,23 +308,34 @@ function HorizontalSwiper({ items, renderItem, label = 'Related projects' }) {
 // ---------- Hero (cinematic with cycling images) ----------
 function Hero({ frames, eyebrow, title, sub }) {
   const [active, setActive] = useState(0);
+  // Only the first (LCP) frame loads on initial paint. The remaining rotating
+  // frames mount shortly after, well before the first 5.5s rotation — so they
+  // don't compete with the hero LCP image for bandwidth, while timing,
+  // animation and the crossfade behaviour stay exactly the same.
+  const [showRest, setShowRest] = useState(false);
   useEffect(() => {
     const t = setInterval(() => setActive(a => (a + 1) % frames.length), 5500);
     return () => clearInterval(t);
   }, [frames.length]);
+  useEffect(() => {
+    const t = setTimeout(() => setShowRest(true), 1200);
+    return () => clearTimeout(t);
+  }, []);
   return (
     <section className="hero">
       <div className="hero-media">
         {frames.map((f, i) => (
           <div key={i} className={`frame${i === active ? ' active' : ''}`}>
-            <Image
-              src={f.src}
-              alt={f.caption || ''}
-              fill
-              sizes="100vw"
-              priority={i === 0}
-              className="hero-frame-img"
-            />
+            {(i === 0 || showRest) && (
+              <Image
+                src={f.src}
+                alt={f.caption || ''}
+                fill
+                sizes="100vw"
+                priority={i === 0}
+                className="hero-frame-img"
+              />
+            )}
           </div>
         ))}
       </div>
