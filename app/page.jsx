@@ -14,10 +14,10 @@ export default async function HomePage() {
   const featured = await getFeaturedProjects(6);
 
   const heroFrames = [
-    { src: SITE_DATA.IMG.archA, caption: 'PARC AZRI · UMERKOT, SINDH' },
-    { src: SITE_DATA.IMG.archC, caption: 'ALKARAM UNIVERSITY · ISLAMABAD' },
-    { src: SITE_DATA.IMG.greenA, caption: 'INTELLIGENT GLASS HOUSE · NARC' },
-    { src: SITE_DATA.IMG.intC, caption: "CHAI JEE'S CAFÉ · ISLAMABAD" },
+    { src: '/featured/07.jpg', caption: 'PARC-AZRC Umerkot' },
+    { src: '/featured/15.jpg', caption: 'NUML Canopies' },
+    { src: '/featured/13.jpg', caption: 'Maze Isolation Facility NARC' },
+    { src: '/featured/05.jpg', caption: 'Residential Villas Kingdom Valley' },
   ];
 
   // Show 6 featured services on home (full list lives on /services)
