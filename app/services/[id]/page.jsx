@@ -1,15 +1,23 @@
-'use client';
 import React from 'react';
 import { notFound } from 'next/navigation';
 import { SITE_DATA } from '../../../src/data';
-import { ImgBox, ProjectCard, HorizontalSwiper, CTABlock } from '../../../src/components';
+import { ImgBox, CTABlock } from '../../../src/components';
+import { getProjectsByCategoryName } from '../../../lib/queries';
+import ServiceProjects from './ServiceProjects';
 
-export default function ServiceDetailPage({ params }) {
+export const dynamic = 'force-dynamic';
+
+export default async function ServiceDetailPage({ params }) {
   const { id } = params;
+  // Service editorial content (name, tagline, scope, hero) stays in SITE_DATA —
+  // it is copy, not project data.
   const svc = SITE_DATA.byId(SITE_DATA.SERVICES, id);
   if (!svc) notFound();
-  const cat = SITE_DATA.byId(SITE_DATA.CATEGORIES, svc.categoryId);
-  const related = SITE_DATA.projectsByCategory(svc.categoryId);
+
+  // Related projects come from Supabase, matched by category NAME so they are
+  // identical to /projects filtered to this category (same cover images too).
+  const { category, projects } = await getProjectsByCategoryName(svc.name);
+  const catName = category?.name || svc.name;
 
   return (
     <main className="page">
@@ -40,18 +48,18 @@ export default function ServiceDetailPage({ params }) {
         </div>
       </section>
 
-      {related.length > 0 && (
+      {projects.length > 0 && (
         <section className="section warm">
           <div className="container-wide">
             <div className="sec-head">
               <div className="sh-l"><span className="eyebrow"><span className="dot"></span>RECENT WORK</span></div>
-              <div className="sh-r"><h2 className="hd-1">{cat?.name} projects we've delivered.</h2></div>
+              <div className="sh-r"><h2 className="hd-1">{catName} projects we&apos;ve delivered.</h2></div>
             </div>
           </div>
-          <HorizontalSwiper
-            items={related}
-            label={`${cat?.name} · drag or scroll →`}
-            renderItem={(p) => <ProjectCard project={p} ratio="r-43" />}
+          <ServiceProjects
+            items={projects}
+            categorySlug={category?.slug}
+            label={`${catName} · drag or scroll →`}
           />
         </section>
       )}

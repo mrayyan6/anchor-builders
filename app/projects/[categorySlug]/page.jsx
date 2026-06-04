@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getCategoryWithProjects } from '../../../lib/queries';
 import { Reveal, CTABlock } from '../../../src/components';
+import { balancedSpanClass } from '../../../src/grid';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,7 +44,7 @@ export default async function CategoryPage({ params }) {
           ) : (
             <div className="db-proj-grid">
               {projects.map((p, i) => (
-                <Reveal key={p.id} delay={(i % 3) * 80}>
+                <Reveal key={p.id} delay={(i % 3) * 80} className={balancedSpanClass(i, projects.length)}>
                   <Link
                     href={`/projects/${category.slug}/${p.slug}`}
                     className="proj-card"

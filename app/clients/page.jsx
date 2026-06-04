@@ -1,8 +1,10 @@
-'use client';
 import React from 'react';
 import Link from 'next/link';
 import { SITE_DATA } from '../../src/data';
 import { Reveal, CTABlock } from '../../src/components';
+import { getDynamicClients } from '../../lib/queries';
+
+export const dynamic = 'force-dynamic';
 
 function getClientGridSpanClass(index, total) {
   const remainder = total % 3;
@@ -14,11 +16,24 @@ function getClientGridSpanClass(index, total) {
   return '';
 }
 
-export default function ClientsPage() {
-  const grouped = ['Government', 'Retainer', 'Private'].map(s => ({
+export default async function ClientsPage() {
+  // Hardcoded roster always shown. Backend clients (if a `clients` table
+  // exists) are merged in, skipping any whose name duplicates a hardcoded one.
+  const dynamicClients = await getDynamicClients();
+  const hardcodedNames = new Set(
+    SITE_DATA.CLIENTS.map((c) => c.name.trim().toLowerCase())
+  );
+  const extraClients = dynamicClients.filter(
+    (c) => !hardcodedNames.has(String(c.name).trim().toLowerCase())
+  );
+  const allClients = [...SITE_DATA.CLIENTS, ...extraClients];
+
+  const grouped = ['Government', 'Retainer', 'Private'].map((s) => ({
     sector: s,
-    list: SITE_DATA.CLIENTS.filter(c => c.sector === s),
+    list: allClients.filter((c) => c.sector === s),
   }));
+
+  const totalCount = allClients.length;
 
   return (
     <main className="page">
@@ -27,7 +42,7 @@ export default function ClientsPage() {
           <div className="crumb">— CLIENTS / OUR VALUED CLIENTS</div>
           <div className="title">
             <h1 className="hd-display">A roster built over <i>fifteen years.</i></h1>
-            <p className="lede">{SITE_DATA.CLIENTS.length}+ institutions trust Anchor — from Pakistan's federal ministries, research councils and universities to retainer accounts in telecom, banking, and private real estate.</p>
+            <p className="lede">{totalCount}+ institutions trust Anchor — from Pakistan&apos;s federal ministries, research councils and universities to retainer accounts in telecom, banking, and private real estate.</p>
           </div>
         </div>
       </header>
@@ -43,8 +58,9 @@ export default function ClientsPage() {
         </div>
       </section>
 
-      {/* Sector-by-sector — detailed client cards (link through to detail pages) */}
+      {/* Sector-by-sector — detailed client cards */}
       {grouped.map((g, gi) => (
+        g.list.length === 0 ? null : (
         <section key={g.sector} className={`section ${gi % 2 === 1 ? 'warm' : ''}`}>
           <div className="container-wide">
             <div className="sec-head">
@@ -60,19 +76,34 @@ export default function ClientsPage() {
               </div>
             </div>
             <div className="clients-grid">
-              {g.list.map((c, i) => (
-                <Link key={c.id} href={`/clients/${c.id}`} className={`client-card ${getClientGridSpanClass(i, g.list.length)}${gi % 2 === 1 ? ' warm-bg' : ''}`}>
-                  <div className="cc-meta"><span>SINCE {c.since}</span><span>{c.projects} {c.projects === 1 ? 'PROJECT' : 'PROJECTS'}</span></div>
-                  <span className="cc-arrow">↗</span>
-                  <div className="cc-name-wrap">
-                    <h3 className="cc-name">{c.name}</h3>
-                    <p className="cc-full">{c.fullName}</p>
-                  </div>
-                </Link>
-              ))}
+              {g.list.map((c, i) => {
+                const spanClass = getClientGridSpanClass(i, g.list.length);
+                const cls = `client-card ${spanClass}${gi % 2 === 1 ? ' warm-bg' : ''}`;
+                const inner = (
+                  <>
+                    <div className="cc-meta">
+                      <span>{c.since ? `SINCE ${c.since}` : ''}</span>
+                      <span>{c.projects != null ? `${c.projects} ${c.projects === 1 ? 'PROJECT' : 'PROJECTS'}` : ''}</span>
+                    </div>
+                    <span className="cc-arrow">↗</span>
+                    <div className="cc-name-wrap">
+                      <h3 className="cc-name">{c.name}</h3>
+                      <p className="cc-full">{c.fullName}</p>
+                    </div>
+                  </>
+                );
+                // Hardcoded clients have detail pages; dynamic ones don't, so
+                // render them as a non-linking card to avoid 404s.
+                return c.dynamic ? (
+                  <div key={c.id} className={cls}>{inner}</div>
+                ) : (
+                  <Link key={c.id} href={`/clients/${c.id}`} className={cls}>{inner}</Link>
+                );
+              })}
             </div>
           </div>
         </section>
+        )
       ))}
 
       <CTABlock />

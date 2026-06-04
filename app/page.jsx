@@ -6,6 +6,7 @@ import {
 } from '../src/components';
 import HomeFeatured from './HomeFeatured';
 import { getFeaturedProjects } from '../lib/queries';
+import { balancedSpanClass } from '../src/grid';
 
 export const dynamic = 'force-dynamic';
 
@@ -82,7 +83,7 @@ export default async function HomePage() {
 
           <div className="diff-grid">
             {SITE_DATA.DIFFERENTIATORS.map((d, i) => (
-              <Reveal key={d.k} delay={(i % 3) * 80} className="diff-card">
+              <Reveal key={d.k} delay={(i % 3) * 80} className={`diff-card ${balancedSpanClass(i, SITE_DATA.DIFFERENTIATORS.length)}`}>
                 <span className="diff-num">— {d.k}</span>
                 <h3 className="diff-title">{d.t}</h3>
                 <p className="diff-body">{d.d}</p>

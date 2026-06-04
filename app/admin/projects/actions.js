@@ -20,16 +20,69 @@ async function requireAdmin() {
 
 function bust(projectId) {
   revalidatePath('/admin/projects');
+  revalidatePath('/admin/categories');
   if (projectId) revalidatePath(`/admin/projects/${projectId}/images`);
   revalidatePath('/projects');
   revalidatePath('/', 'layout');
 }
 
+/**
+ * Generate a slug from `base` that is unique within `table`.
+ * Appends -2, -3, … on collision. `excludeId` skips the row being edited.
+ */
+async function uniqueSlug(supabase, table, base, excludeId = null) {
+  const root = toSlug(base);
+  if (!root) return null;
+  // Each iteration is a single indexed lookup; bound it generously.
+  for (let n = 1; n <= 200; n += 1) {
+    const candidate = n === 1 ? root : `${root}-${n}`;
+    let q = supabase.from(table).select('id').eq('slug', candidate);
+    if (excludeId) q = q.neq('id', excludeId);
+    const { data } = await q.maybeSingle();
+    if (!data) return candidate;
+  }
+  // Extremely unlikely fallback — keep it unique with a timestamp suffix.
+  return `${root}-${Date.now()}`;
+}
+
+/**
+ * Resolve a typed category name to a category id.
+ * - Case-insensitive match against existing categories → reuse it.
+ * - No match → create a new category (unique slug) and return its id.
+ * Returns { id } or { error }.
+ */
+async function resolveCategoryId(supabase, typedName) {
+  const name = String(typedName || '').trim();
+  if (!name) return { error: 'Category is required.' };
+
+  const { data: existing, error: listErr } = await supabase
+    .from('project_categories')
+    .select('id, name, sort_order');
+  if (listErr) return { error: listErr.message };
+
+  const wanted = name.toLowerCase();
+  // Temp variable holds any case-insensitive match before we decide to create.
+  const match = (existing || []).find(
+    (c) => String(c.name || '').trim().toLowerCase() === wanted
+  );
+  if (match) return { id: match.id };
+
+  const slug = await uniqueSlug(supabase, 'project_categories', name);
+  const nextOrder = (existing || []).reduce((m, c) => Math.max(m, c.sort_order ?? 0), 0) + 1;
+  const { data: created, error: createErr } = await supabase
+    .from('project_categories')
+    .insert({ name, slug, sort_order: nextOrder, is_active: true })
+    .select('id')
+    .single();
+  if (createErr) return { error: `Could not create category: ${createErr.message}` };
+  return { id: created.id, created: true };
+}
+
 function readForm(form) {
   return {
     title: String(form.get('title') || '').trim(),
-    slug: String(form.get('slug') || '').trim(),
-    category_id: String(form.get('category_id') || '').trim(),
+    client: String(form.get('client') || '').trim() || null,
+    category_name: String(form.get('category_name') || '').trim(),
     description: String(form.get('description') || '').trim() || null,
     location: String(form.get('location') || '').trim() || null,
     year_completed: form.get('year_completed') ? Number(form.get('year_completed')) : null,
@@ -43,21 +96,19 @@ export async function createProject(form) {
   const supabase = await requireAdmin();
   const v = readForm(form);
   if (!v.title) return { error: 'Title is required.' };
-  if (!v.category_id) return { error: 'Category is required.' };
+  if (!v.category_name) return { error: 'Category is required.' };
 
-  const slug = toSlug(v.slug || v.title);
-  if (!slug) return { error: 'Slug could not be generated.' };
+  const cat = await resolveCategoryId(supabase, v.category_name);
+  if (cat.error) return { error: cat.error };
 
-  const { data: dup } = await supabase
-    .from('projects')
-    .select('id')
-    .eq('slug', slug)
-    .maybeSingle();
-  if (dup) return { error: `Slug "${slug}" is already in use.` };
+  // Slug is auto-generated from the title and made unique.
+  const slug = await uniqueSlug(supabase, 'projects', v.title);
+  if (!slug) return { error: 'Could not generate a slug from the title.' };
 
+  const { category_name, ...rest } = v;
   const { data, error } = await supabase
     .from('projects')
-    .insert({ ...v, slug })
+    .insert({ ...rest, category_id: cat.id, slug })
     .select('id')
     .single();
   if (error) return { error: error.message };
@@ -72,22 +123,17 @@ export async function updateProject(form) {
   if (!id) return { error: 'Missing project id.' };
   const v = readForm(form);
   if (!v.title) return { error: 'Title is required.' };
-  if (!v.category_id) return { error: 'Category is required.' };
+  if (!v.category_name) return { error: 'Category is required.' };
 
-  const slug = toSlug(v.slug || v.title);
-  if (!slug) return { error: 'Slug could not be generated.' };
+  const cat = await resolveCategoryId(supabase, v.category_name);
+  if (cat.error) return { error: cat.error };
 
-  const { data: dup } = await supabase
-    .from('projects')
-    .select('id')
-    .eq('slug', slug)
-    .neq('id', id)
-    .maybeSingle();
-  if (dup) return { error: `Slug "${slug}" is already in use.` };
-
+  // Slug is intentionally left unchanged on edit to keep existing URLs and
+  // bookmarks stable.
+  const { category_name, ...rest } = v;
   const { error } = await supabase
     .from('projects')
-    .update({ ...v, slug, updated_at: new Date().toISOString() })
+    .update({ ...rest, category_id: cat.id, updated_at: new Date().toISOString() })
     .eq('id', id);
   if (error) return { error: error.message };
 

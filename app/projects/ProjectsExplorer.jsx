@@ -3,6 +3,7 @@ import React, { useMemo, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Reveal } from '../../src/components';
+import { balancedSpanClass } from '../../src/grid';
 
 export default function ProjectsExplorer({ categories, projects }) {
   const [cat, setCat] = useState('all');
@@ -44,7 +45,7 @@ export default function ProjectsExplorer({ categories, projects }) {
           ) : (
             <div className="db-proj-grid">
               {filtered.map((p, i) => (
-                <Reveal key={p.id} delay={(i % 3) * 80}>
+                <Reveal key={p.id} delay={(i % 3) * 80} className={balancedSpanClass(i, filtered.length)}>
                   <DbProjectCard project={p} />
                 </Reveal>
               ))}

@@ -3,6 +3,13 @@
    Matches Cormorant / Manrope / JetBrains Mono + warm palette.
    ============================================================ */
 
+/* Inline field hint (slug preview, category note) */
+.admin-fields .field-hint {
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: 0.02em;
+}
+
 /* ---------- Login / Signup ---------- */
 .login-page { min-height: 100vh; min-height: 100svh; display: flex; align-items: center; justify-content: center; padding: 120px var(--gutter) 60px; background: var(--bg); }
 .login-shell { width: 100%; max-width: 480px; }
@@ -398,14 +405,28 @@
 .image-meta .field input:focus { border-color: var(--ink); }
 
 /* ---------- Public projects grid override (Supabase-driven) ---------- */
+/* 3-per-row on a 6-col track so the trailing row can be balanced/centered
+   (see balancedSpanClass in src/grid.js). */
 .db-proj-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 28px;
-  grid-auto-flow: dense;
 }
-@media (max-width: 900px) { .db-proj-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 600px) { .db-proj-grid { grid-template-columns: 1fr; } }
+.db-proj-grid > * { grid-column: span 2; }
+.db-proj-grid > .g6-center { grid-column: 3 / span 2; }
+.db-proj-grid > .g6-half { grid-column: span 3; }
+@media (max-width: 900px) {
+  .db-proj-grid { grid-template-columns: repeat(2, 1fr); }
+  .db-proj-grid > *,
+  .db-proj-grid > .g6-center,
+  .db-proj-grid > .g6-half { grid-column: auto; }
+}
+@media (max-width: 600px) {
+  .db-proj-grid { grid-template-columns: 1fr; }
+  .db-proj-grid > *,
+  .db-proj-grid > .g6-center,
+  .db-proj-grid > .g6-half { grid-column: auto; }
+}
 
 /* ---------- Responsive admin shell ---------- */
 @media (max-width: 900px) {

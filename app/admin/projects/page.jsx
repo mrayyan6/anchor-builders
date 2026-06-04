@@ -12,7 +12,7 @@ export default async function ProjectsAdminPage({ searchParams }) {
   let query = supabase
     .from('projects')
     .select(`
-      id, title, slug, description, location, year_completed,
+      id, title, slug, description, location, year_completed, client,
       is_featured, is_active, sort_order, category_id, cover_image_url,
       category:project_categories ( id, name, slug )
     `)

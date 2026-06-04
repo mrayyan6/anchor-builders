@@ -8,8 +8,8 @@ import { createProject, updateProject, deleteProject } from './actions';
 function emptyForm(defaults = {}) {
   return {
     title: '',
-    slug: '',
-    category_id: defaults.category_id || '',
+    client: '',
+    category_name: defaults.category_name || '',
     description: '',
     location: '',
     year_completed: '',
@@ -25,9 +25,11 @@ export default function ProjectsClient({ initialProjects, categories, filterCat 
   const searchParams = useSearchParams();
   const [pending, startTransition] = useTransition();
 
+  const filterCatName = (categories.find((c) => c.id === filterCat) || {}).name || '';
+
   const [editingId, setEditingId] = useState(null);
   const [showAdd, setShowAdd] = useState(false);
-  const [draft, setDraft] = useState(emptyForm({ category_id: filterCat || (categories[0]?.id || '') }));
+  const [draft, setDraft] = useState(emptyForm({ category_name: filterCatName }));
   const [error, setError] = useState('');
   const [flash, setFlash] = useState('');
 
@@ -42,7 +44,7 @@ export default function ProjectsClient({ initialProjects, categories, filterCat 
     setEditingId(null);
     setShowAdd(true);
     setError('');
-    setDraft(emptyForm({ category_id: filterCat || (categories[0]?.id || '') }));
+    setDraft(emptyForm({ category_name: filterCatName }));
   }
 
   function startEdit(p) {
@@ -51,8 +53,8 @@ export default function ProjectsClient({ initialProjects, categories, filterCat 
     setError('');
     setDraft({
       title: p.title || '',
-      slug: p.slug || '',
-      category_id: p.category_id || '',
+      client: p.client || '',
+      category_name: p.category?.name || '',
       description: p.description || '',
       location: p.location || '',
       year_completed: p.year_completed ?? '',
@@ -71,8 +73,8 @@ export default function ProjectsClient({ initialProjects, categories, filterCat 
   function build(extra = {}) {
     const fd = new FormData();
     fd.set('title', draft.title);
-    fd.set('slug', draft.slug || toSlug(draft.title));
-    fd.set('category_id', draft.category_id);
+    fd.set('client', draft.client || '');
+    fd.set('category_name', draft.category_name || '');
     fd.set('description', draft.description || '');
     fd.set('location', draft.location || '');
     if (draft.year_completed !== '' && draft.year_completed !== null) {
@@ -105,7 +107,7 @@ export default function ProjectsClient({ initialProjects, categories, filterCat 
   function onAddSubmit(e) {
     e.preventDefault();
     if (!draft.title.trim()) return setError('Title is required.');
-    if (!draft.category_id) return setError('Category is required.');
+    if (!draft.category_name.trim()) return setError('Category is required.');
     const goToImages = e.nativeEvent.submitter?.dataset?.afterSave === 'images';
     run(createProject, build(), { goToImages });
   }
@@ -113,7 +115,7 @@ export default function ProjectsClient({ initialProjects, categories, filterCat 
   function onEditSubmit(e) {
     e.preventDefault();
     if (!draft.title.trim()) return setError('Title is required.');
-    if (!draft.category_id) return setError('Category is required.');
+    if (!draft.category_name.trim()) return setError('Category is required.');
     const goToImages = e.nativeEvent.submitter?.dataset?.afterSave === 'images';
     run(updateProject, build({ id: editingId }), { goToImages, projectId: editingId });
   }
@@ -242,31 +244,37 @@ function ProjectFields({ draft, setDraft, categories, disabled }) {
           disabled={disabled}
           required
         />
+        {draft.title.trim() && (
+          <span className="field-hint mono">URL slug: /{toSlug(draft.title) || '—'}</span>
+        )}
       </div>
       <div className="field">
-        <label>Slug</label>
+        <label>Client</label>
         <input
           type="text"
-          value={draft.slug}
-          onChange={(e) => setDraft({ ...draft, slug: toSlug(e.target.value) })}
-          onBlur={() => setDraft((d) => ({ ...d, slug: toSlug(d.slug || d.title) }))}
-          placeholder={toSlug(draft.title) || 'auto-from-title'}
+          value={draft.client}
+          onChange={(e) => setDraft({ ...draft, client: e.target.value })}
+          placeholder="e.g. PARC, NUST, Private"
           disabled={disabled}
         />
       </div>
       <div className="field">
         <label>Category</label>
-        <select
-          value={draft.category_id}
-          onChange={(e) => setDraft({ ...draft, category_id: e.target.value })}
+        <input
+          type="text"
+          list="admin-category-options"
+          value={draft.category_name}
+          onChange={(e) => setDraft({ ...draft, category_name: e.target.value })}
+          placeholder="Type a category — matched or created"
           disabled={disabled}
           required
-        >
-          <option value="">— Select —</option>
+        />
+        <datalist id="admin-category-options">
           {categories.map((c) => (
-            <option key={c.id} value={c.id}>{c.name}{!c.is_active ? ' (hidden)' : ''}</option>
+            <option key={c.id} value={c.name} />
           ))}
-        </select>
+        </datalist>
+        <span className="field-hint mono">Matches an existing category (any case) or creates a new one.</span>
       </div>
       <div className="field">
         <label>Year completed</label>

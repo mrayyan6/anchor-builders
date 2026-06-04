@@ -596,33 +596,94 @@ footer .ft-bot .socials a:hover { opacity: 1; }
 
 @media (max-width: 800px) { .contact-grid { grid-template-columns: 1fr; gap: 56px; } }
 
-/* ---------- Project detail page ---------- */
-.pd-hero { position: relative; height: 88vh; min-height: 640px; overflow: hidden; color: var(--on-dark); display: flex; flex-direction: column; }
-.pd-hero .bg { position: absolute; inset: 0; background-size: cover; background-position: center; z-index: 0; }
-.pd-hero .pd-hero-img { object-fit: cover; object-position: center; z-index: 0; }
-.pd-hero::after { content:''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20,17,13,0.45) 0%, rgba(20,17,13,0.1) 40%, rgba(20,17,13,0.7) 100%); z-index: 1; }
-.pd-hero .pd-inner { position: relative; z-index: 2; flex: 1; padding: 160px var(--gutter) 56px; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; }
-.pd-hero .pd-meta { display: flex; gap: 40px; flex-wrap: wrap; font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
-.pd-hero .pd-meta div { display: flex; flex-direction: column; gap: 4px; }
-.pd-hero .pd-meta .lbl { opacity: 0.6; }
-.pd-hero .pd-title { color: var(--on-dark); max-width: 18ch; }
-
+/* ---------- Service detail overview (shared: /services/[id]) ---------- */
 .pd-overview { display: grid; grid-template-columns: 1fr 1.4fr; gap: 80px; align-items: start; }
 .pd-overview .scope { display: flex; flex-direction: column; gap: 20px; }
 .pd-overview .scope .row { display: grid; grid-template-columns: 100px 1fr; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); font-size: 14px; }
 .pd-overview .scope .row:last-child { border-bottom: 1px solid var(--line); }
 .pd-overview .scope .row .k { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); padding-top: 2px; }
-
-.pd-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
-.pd-gallery .span2 {
-  grid-column: 1/-1;
-  width: 100%;
-  max-width: calc((100% - 28px) / 2);
-  justify-self: center;
-}
 @media (max-width: 800px) {
-  .pd-overview, .pd-gallery { grid-template-columns: 1fr; gap: 40px; }
-  .pd-gallery .span2 { max-width: none; }
+  .pd-overview { grid-template-columns: 1fr; gap: 40px; }
+}
+
+/* ---------- Project detail page ---------- */
+/* Simple solid header band (no background image) — same dark fill as the
+   homepage featured/dark sections. */
+.pd-head { background: var(--ink); color: var(--on-dark); padding: 150px var(--gutter) 56px; }
+.pd-head-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; flex-wrap: wrap; margin-bottom: 36px; }
+.pd-back { display: inline-flex; align-items: center; gap: 8px; }
+.pd-head-title { color: var(--on-dark); max-width: 18ch; }
+
+/* Body: gallery (left) + metadata & description (right) */
+.pd-body { padding-top: 64px; }
+.pd-layout { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 64px; align-items: start; }
+.pd-layout-side { display: flex; flex-direction: column; gap: 40px; position: sticky; top: 110px; }
+
+/* Gallery */
+.pd-gallery2 { display: flex; flex-direction: column; gap: 18px; }
+.pd-gallery-main { width: 100%; }
+.pd-gallery-caption { color: var(--ink-3); }
+.pd-gallery-empty .ph { font-family: var(--mono); }
+
+.pd-thumbs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 12px;
+}
+.pd-thumb {
+  display: block;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  position: relative;
+}
+.pd-thumb .img-box { width: 100%; }
+.pd-thumb .img-box-img,
+.pd-thumb .img-box { transition: opacity .3s var(--ease), filter .3s var(--ease); }
+/* Non-selected thumbnails: dimmed + a touch of blur */
+.pd-thumb:not(.active) .img-box-img { opacity: 0.5; filter: blur(1px); }
+.pd-thumb:not(.active):hover .img-box-img { opacity: 0.8; filter: blur(0); }
+/* Selected thumbnail: fully clear + warm marker */
+.pd-thumb.active { outline: 2px solid var(--warm-deep); outline-offset: 2px; }
+.pd-thumb.active .img-box-img { opacity: 1; filter: none; }
+
+/* Metadata table */
+.pd-info { display: flex; flex-direction: column; }
+.pd-info-row {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 16px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+  align-items: baseline;
+}
+.pd-info-row:last-child { border-bottom: 1px solid var(--line); }
+.pd-info-row .lbl {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.pd-info-row .val { font-family: var(--serif); font-size: 20px; line-height: 1.25; }
+.pd-info-desc { }
+
+@media (max-width: 900px) {
+  .pd-head { padding: 130px var(--gutter) 44px; }
+  .pd-layout { grid-template-columns: 1fr; gap: 40px; }
+  .pd-layout-side { position: static; top: auto; }
+  /* On mobile, let thumbnails scroll horizontally */
+  .pd-thumbs {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .pd-thumbs::-webkit-scrollbar { display: none; }
+  .pd-thumb { flex: 0 0 92px; scroll-snap-align: start; }
 }
 
 /* ---------- Quote / Testimonial ---------- */
@@ -639,17 +700,21 @@ footer .ft-bot .socials a:hover { opacity: 1; }
 /* ---------- Why Anchor — differentiators grid ---------- */
 .diff-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: rgba(236,232,223,0.12);
-  border: 1px solid rgba(236,232,223,0.12);
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0;
+  /* Transparent so empty trailing-row tracks blend with the section instead
+     of showing an odd light block beside the centered card. Card separation
+     is drawn by per-card borders below. */
+  background: transparent;
+  border: none;
 }
-.diff-grid.light {
-  background: var(--line);
-  border-color: var(--line);
-}
+/* 3-per-row on a 6-col track, with balanced/centered trailing rows */
+.diff-grid .diff-card { grid-column: span 2; }
+.diff-grid .diff-card.g6-center { grid-column: 3 / span 2; }
+.diff-grid .diff-card.g6-half { grid-column: span 3; }
 .diff-card {
   background: var(--ink);
+  border: 1px solid rgba(236,232,223,0.12);
   padding: 36px 28px;
   display: flex;
   flex-direction: column;
@@ -657,7 +722,7 @@ footer .ft-bot .socials a:hover { opacity: 1; }
   min-height: 240px;
   transition: background .35s var(--ease);
 }
-.diff-card.light { background: var(--bg); }
+.diff-card.light { background: var(--bg); border-color: var(--line); }
 .diff-card:hover { background: var(--dark-2); }
 .diff-card.light:hover { background: var(--bg-2); }
 
@@ -686,10 +751,17 @@ footer .ft-bot .socials a:hover { opacity: 1; }
 
 @media (max-width: 1100px) {
   .diff-grid { grid-template-columns: repeat(2, 1fr); }
+  /* reset 6-col spans so cards flow naturally on tablet */
+  .diff-grid .diff-card,
+  .diff-grid .diff-card.g6-center,
+  .diff-grid .diff-card.g6-half { grid-column: auto; }
 }
 @media (max-width: 640px) {
   .diff-grid { grid-template-columns: 1fr; }
   .diff-card { min-height: 0; padding: 28px 22px; }
+  .diff-grid .diff-card,
+  .diff-grid .diff-card.g6-center,
+  .diff-grid .diff-card.g6-half { grid-column: auto; }
 }
 
 /* ---------- Clients page — responsive sector grid ---------- */
