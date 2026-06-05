@@ -326,11 +326,12 @@ ul { list-style: none; }
 .hero-foot .hero-meta { font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; opacity: 0.7; text-transform: uppercase; }
 
 .scroll-cue { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 1px; height: 60px; background: rgba(236,232,223,0.4); z-index: 2; }
-.scroll-cue::after { content:''; position: absolute; left: -2px; width: 5px; height: 16px; background: var(--warm); animation: cue 2.4s var(--ease) infinite; }
+.scroll-cue::after { content:''; position: absolute; left: -2px; top: 0; width: 5px; height: 16px; background: var(--warm); animation: cue 2.4s var(--ease) infinite; }
+/* transform/opacity only → runs on the compositor (no layout/paint), same motion */
 @keyframes cue {
-  0% { top: 0; opacity: 0; }
+  0% { transform: translateY(0); opacity: 0; }
   30% { opacity: 1; }
-  100% { top: 44px; opacity: 0; }
+  100% { transform: translateY(44px); opacity: 0; }
 }
 
 /* ---------- Hero responsive ---------- */
@@ -639,7 +640,9 @@ footer .ft-bot .socials a:hover { opacity: 1; }
   cursor: pointer;
   position: relative;
 }
-.pd-thumb .img-box { width: 100%; }
+/* display:block so the aspect-ratio on .img-box (a <span> here) is honored and
+   the thumbnail actually reserves height — otherwise the fill image collapses. */
+.pd-thumb .img-box { display: block; width: 100%; }
 .pd-thumb .img-box-img,
 .pd-thumb .img-box { transition: opacity .3s var(--ease), filter .3s var(--ease); }
 /* Non-selected thumbnails: dimmed + a touch of blur */
@@ -787,6 +790,32 @@ footer .ft-bot .socials a:hover { opacity: 1; }
   .clients-grid .client-card,
   .clients-grid .client-span-full,
   .clients-grid .client-span-half { grid-column: 1 / -1; }
+}
+
+/* ---------- Projects listing — balanced 3-per-row grid ----------
+   Lives here (global) so it applies to the public /projects and
+   /projects/[categorySlug] pages. 6-col track, cards span 2 (→ 3 per row);
+   trailing rows stay neat: a lone last card centers, a final pair sits in the
+   left + center columns at normal card width. */
+.db-proj-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 28px;
+}
+.db-proj-grid > * { grid-column: span 2; }
+.db-proj-grid > .g6-center { grid-column: 3 / span 2; }
+.db-proj-grid > .g6-half { grid-column: span 2; }
+@media (max-width: 1100px) {
+  .db-proj-grid { grid-template-columns: repeat(2, 1fr); }
+  .db-proj-grid > *,
+  .db-proj-grid > .g6-center,
+  .db-proj-grid > .g6-half { grid-column: auto; }
+}
+@media (max-width: 640px) {
+  .db-proj-grid { grid-template-columns: 1fr; }
+  .db-proj-grid > *,
+  .db-proj-grid > .g6-center,
+  .db-proj-grid > .g6-half { grid-column: auto; }
 }
 
 /* ---------- Home — editorial split image responsive ---------- */

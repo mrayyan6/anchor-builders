@@ -404,29 +404,9 @@
 }
 .image-meta .field input:focus { border-color: var(--ink); }
 
-/* ---------- Public projects grid override (Supabase-driven) ---------- */
-/* 3-per-row on a 6-col track so the trailing row can be balanced/centered
-   (see balancedSpanClass in src/grid.js). */
-.db-proj-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 28px;
-}
-.db-proj-grid > * { grid-column: span 2; }
-.db-proj-grid > .g6-center { grid-column: 3 / span 2; }
-.db-proj-grid > .g6-half { grid-column: span 3; }
-@media (max-width: 900px) {
-  .db-proj-grid { grid-template-columns: repeat(2, 1fr); }
-  .db-proj-grid > *,
-  .db-proj-grid > .g6-center,
-  .db-proj-grid > .g6-half { grid-column: auto; }
-}
-@media (max-width: 600px) {
-  .db-proj-grid { grid-template-columns: 1fr; }
-  .db-proj-grid > *,
-  .db-proj-grid > .g6-center,
-  .db-proj-grid > .g6-half { grid-column: auto; }
-}
+/* Note: the public projects grid (.db-proj-grid) now lives in src/styles.css
+   so it applies to public pages — admin.css is only loaded on /admin, /login
+   and /signup. Do not re-add it here. */
 
 /* ---------- Responsive admin shell ---------- */
 @media (max-width: 900px) {

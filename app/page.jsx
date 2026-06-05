@@ -51,8 +51,8 @@ export default async function HomePage() {
           <div className="home-editorial-grid">
             <Reveal mode="image"><ImgBox src={SITE_DATA.IMG.archD} ratio="r-169" /></Reveal>
             <div className="home-editorial-col">
-              <Reveal mode="image" delay={120}><ImgBox src={SITE_DATA.IMG.constB} ratio="r-43" /></Reveal>
-              <Reveal mode="image" delay={240}><ImgBox src={SITE_DATA.IMG.intB} ratio="r-43" /></Reveal>
+              <Reveal mode="image" delay={120}><ImgBox src={SITE_DATA.IMG.constB} ratio="r-43" sizes="(max-width: 900px) 100vw, (max-width: 1280px) 42vw, 33vw" /></Reveal>
+              <Reveal mode="image" delay={240}><ImgBox src={SITE_DATA.IMG.intB} ratio="r-43" sizes="(max-width: 900px) 100vw, (max-width: 1280px) 42vw, 33vw" /></Reveal>
             </div>
           </div>
         </div>
