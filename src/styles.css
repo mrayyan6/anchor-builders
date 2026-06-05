@@ -626,6 +626,11 @@ footer .ft-bot .socials a:hover { opacity: 1; }
 .pd-gallery-main { width: 100%; }
 .pd-gallery-caption { color: var(--ink-3); }
 .pd-gallery-empty .ph { font-family: var(--mono); }
+/* Main images are stacked and crossfaded: only the selected one is visible, and
+   the previous one stays until the next has loaded (no blank flash on switch).
+   Transform kept in the transition so the existing hover zoom still animates. */
+.pd-gallery-main .pd-main-img { opacity: 0; transition: opacity .4s var(--ease), transform 1.4s var(--ease); }
+.pd-gallery-main .pd-main-img.is-shown { opacity: 1; }
 
 .pd-thumbs {
   display: grid;
