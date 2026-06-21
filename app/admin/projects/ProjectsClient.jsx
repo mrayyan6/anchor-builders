@@ -19,7 +19,7 @@ function emptyForm(defaults = {}) {
   };
 }
 
-export default function ProjectsClient({ initialProjects, categories, filterCat }) {
+export default function ProjectsClient({ initialProjects, categories, clientOptions = [], filterCat }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -151,7 +151,7 @@ export default function ProjectsClient({ initialProjects, categories, filterCat 
 
       {showAdd && (
         <form className="admin-form" onSubmit={onAddSubmit}>
-          <ProjectFields draft={draft} setDraft={setDraft} categories={categories} disabled={pending} />
+          <ProjectFields draft={draft} setDraft={setDraft} categories={categories} clientOptions={clientOptions} disabled={pending} />
           {error && <div className="form-error">{error}</div>}
           <div className="admin-form-actions">
             <button type="submit" className="btn btn-primary" disabled={pending}>
@@ -188,7 +188,7 @@ export default function ProjectsClient({ initialProjects, categories, filterCat 
                 <tr key={p.id} className="editing">
                   <td colSpan={6}>
                     <form className="admin-form inline" onSubmit={onEditSubmit}>
-                      <ProjectFields draft={draft} setDraft={setDraft} categories={categories} disabled={pending} />
+                      <ProjectFields draft={draft} setDraft={setDraft} categories={categories} clientOptions={clientOptions} disabled={pending} />
                       {error && <div className="form-error">{error}</div>}
                       <div className="admin-form-actions">
                         <button type="submit" className="btn btn-primary" disabled={pending}>
@@ -232,7 +232,7 @@ export default function ProjectsClient({ initialProjects, categories, filterCat 
   );
 }
 
-function ProjectFields({ draft, setDraft, categories, disabled }) {
+function ProjectFields({ draft, setDraft, categories, clientOptions = [], disabled }) {
   return (
     <div className="admin-fields">
       <div className="field">
@@ -248,16 +248,12 @@ function ProjectFields({ draft, setDraft, categories, disabled }) {
           <span className="field-hint mono">URL slug: /{toSlug(draft.title) || '—'}</span>
         )}
       </div>
-      <div className="field">
-        <label>Client</label>
-        <input
-          type="text"
-          value={draft.client}
-          onChange={(e) => setDraft({ ...draft, client: e.target.value })}
-          placeholder="e.g. PARC, NUST, Private"
-          disabled={disabled}
-        />
-      </div>
+      <ClientSelect
+        value={draft.client}
+        onChange={(v) => setDraft({ ...draft, client: v })}
+        options={clientOptions}
+        disabled={disabled}
+      />
       <div className="field">
         <label>Category</label>
         <input
@@ -332,6 +328,60 @@ function ProjectFields({ draft, setDraft, categories, disabled }) {
           /> Featured (homepage)
         </label>
       </div>
+    </div>
+  );
+}
+
+const CUSTOM_CLIENT = '__custom__';
+
+/**
+ * Client picker: a dropdown of curated + saved clients, plus a "Custom client"
+ * option that reveals a free-text box. On edit, an existing client that matches
+ * an option preselects it; one that doesn't selects "Custom client" and shows
+ * the existing name in the text box. The chosen value is stored in draft.client.
+ */
+function ClientSelect({ value, onChange, options, disabled }) {
+  const matched = !!value && options.some((o) => o.name === value);
+  // Sticky once chosen, so the text box stays open while the admin types.
+  const [custom, setCustom] = useState(!!value && !matched);
+  const selectValue = custom ? CUSTOM_CLIENT : matched ? value : '';
+
+  return (
+    <div className="field">
+      <label>Client</label>
+      <select
+        value={selectValue}
+        onChange={(e) => {
+          const v = e.target.value;
+          if (v === CUSTOM_CLIENT) {
+            setCustom(true);
+            onChange('');
+          } else {
+            setCustom(false);
+            onChange(v);
+          }
+        }}
+        disabled={disabled}
+      >
+        <option value="">— Select client —</option>
+        {options.map((o) => (
+          <option key={o.name} value={o.name}>
+            {o.fullName && o.fullName !== o.name ? `${o.name} — ${o.fullName}` : o.name}
+          </option>
+        ))}
+        <option value={CUSTOM_CLIENT}>Custom client…</option>
+      </select>
+      {custom && (
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Type custom client name"
+          disabled={disabled}
+          style={{ marginTop: 8 }}
+        />
+      )}
+      <span className="field-hint mono">Pick a client, or choose “Custom client” to type a new one.</span>
     </div>
   );
 }

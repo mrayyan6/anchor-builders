@@ -40,15 +40,14 @@ export default function SignupForm() {
     });
     setBusy(false);
 
-    if (signUpErr) {
-      setError(signUpErr.message || 'Sign-up failed.');
-      return;
-    }
-
-    // If email confirmation is required by the Supabase project, the session
-    // will be null and the user needs to verify before signing in.
-    if (!data?.session) {
-      setInfo('Account created. Check your email to verify your address, then sign in.');
+    // Do NOT surface the raw Supabase error — its text (e.g. "User already
+    // registered") reveals whether an email exists (user enumeration). Show one
+    // neutral message for both the error case and the "confirmation pending"
+    // case so existing vs. new emails are indistinguishable. (Client-side
+    // validation above still gives specific feedback for empty/short/mismatched
+    // passwords, which are not enumeration leaks.)
+    if (signUpErr || !data?.session) {
+      setInfo('If this email is valid, check your inbox to continue.');
       return;
     }
 

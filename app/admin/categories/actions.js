@@ -47,7 +47,10 @@ export async function createCategory(form) {
   const { error } = await supabase
     .from('project_categories')
     .insert({ name, slug, description, sort_order, is_active });
-  if (error) return { error: error.message };
+  if (error) {
+    console.error('createCategory:', error.message);
+    return { error: 'Could not save category. Please try again.' };
+  }
 
   bust();
   return { ok: true };
@@ -80,7 +83,10 @@ export async function updateCategory(form) {
     .from('project_categories')
     .update({ name, slug, description, sort_order, is_active, updated_at: new Date().toISOString() })
     .eq('id', id);
-  if (error) return { error: error.message };
+  if (error) {
+    console.error('updateCategory:', error.message);
+    return { error: 'Could not update category. Please try again.' };
+  }
 
   bust();
   return { ok: true };
@@ -112,12 +118,18 @@ export async function deleteCategory(form) {
     if (paths.length > 0) {
       const service = createServiceClient();
       const { error: rmErr } = await service.storage.from(STORAGE_BUCKET).remove(paths);
-      if (rmErr) return { error: `Storage cleanup failed: ${rmErr.message}` };
+      if (rmErr) {
+        console.error('deleteCategory (storage):', rmErr.message);
+        return { error: 'Could not delete category. Please try again.' };
+      }
     }
   }
 
   const { error } = await supabase.from('project_categories').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) {
+    console.error('deleteCategory:', error.message);
+    return { error: 'Could not delete category. Please try again.' };
+  }
 
   bust();
   return { ok: true };

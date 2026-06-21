@@ -55,7 +55,10 @@ export async function recordUploadedImage(form) {
     .insert({ project_id, storage_path, public_url, alt_text, caption, sort_order, is_cover: false })
     .select('id')
     .single();
-  if (error) return { error: error.message };
+  if (error) {
+    console.error('recordUploadedImage:', error.message);
+    return { error: 'Could not save image. Please try again.' };
+  }
 
   bust(project_id);
   return { ok: true, id: data?.id };
@@ -74,7 +77,10 @@ export async function updateImageMeta(form) {
     .from('project_images')
     .update({ alt_text, caption })
     .eq('id', id);
-  if (error) return { error: error.message };
+  if (error) {
+    console.error('updateImageMeta:', error.message);
+    return { error: 'Could not update image. Please try again.' };
+  }
 
   bust(project_id);
   return { ok: true };
@@ -103,19 +109,28 @@ export async function setCoverImage(form) {
     .from('project_images')
     .update({ is_cover: false })
     .eq('project_id', project_id);
-  if (e1) return { error: e1.message };
+  if (e1) {
+    console.error('setCoverImage (clear):', e1.message);
+    return { error: 'Could not set cover image. Please try again.' };
+  }
 
   const { error: e2 } = await supabase
     .from('project_images')
     .update({ is_cover: true })
     .eq('id', id);
-  if (e2) return { error: e2.message };
+  if (e2) {
+    console.error('setCoverImage (set):', e2.message);
+    return { error: 'Could not set cover image. Please try again.' };
+  }
 
   const { error: e3 } = await supabase
     .from('projects')
     .update({ cover_image_url: img.public_url, updated_at: new Date().toISOString() })
     .eq('id', project_id);
-  if (e3) return { error: e3.message };
+  if (e3) {
+    console.error('setCoverImage (project):', e3.message);
+    return { error: 'Could not set cover image. Please try again.' };
+  }
 
   bust(project_id);
   return { ok: true };
@@ -143,14 +158,20 @@ export async function deleteImage(form) {
   if (img.storage_path) {
     const service = createServiceClient();
     const { error: rmErr } = await service.storage.from(STORAGE_BUCKET).remove([img.storage_path]);
-    if (rmErr) return { error: `Storage delete failed: ${rmErr.message}` };
+    if (rmErr) {
+      console.error('deleteImage (storage):', rmErr.message);
+      return { error: 'Could not delete image. Please try again.' };
+    }
   }
 
   const { error: delErr } = await supabase
     .from('project_images')
     .delete()
     .eq('id', id);
-  if (delErr) return { error: delErr.message };
+  if (delErr) {
+    console.error('deleteImage:', delErr.message);
+    return { error: 'Could not delete image. Please try again.' };
+  }
 
   if (img.is_cover) {
     await supabase
@@ -180,7 +201,10 @@ export async function reorderImage(form) {
     .select('id, sort_order')
     .eq('project_id', project_id)
     .order('sort_order', { ascending: true });
-  if (error) return { error: error.message };
+  if (error) {
+    console.error('reorderImage:', error.message);
+    return { error: 'Could not reorder images. Please try again.' };
+  }
 
   const idx = rows.findIndex((r) => r.id === id);
   if (idx < 0) return { error: 'Image not in this project.' };

@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { SITE_DATA } from '../../src/data';
 import { Reveal, CTABlock } from '../../src/components';
 import { getDynamicClients } from '../../lib/queries';
+import { canonicalClientKey } from '../../utils/clients';
+import { toSlug } from '../../utils/slug';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,14 +19,16 @@ function getClientGridSpanClass(index, total) {
 }
 
 export default async function ClientsPage() {
-  // Hardcoded roster always shown. Backend clients (if a `clients` table
-  // exists) are merged in, skipping any whose name duplicates a hardcoded one.
+  // Curated roster always shown. Clients derived from Supabase projects are
+  // merged in, skipping any that canonically match a curated client (so e.g. a
+  // project stored as "Pakistan Agricultural Research Council" doesn't create a
+  // duplicate of the curated "PARC").
   const dynamicClients = await getDynamicClients();
-  const hardcodedNames = new Set(
-    SITE_DATA.CLIENTS.map((c) => c.name.trim().toLowerCase())
+  const curatedKeys = new Set(
+    SITE_DATA.CLIENTS.map((c) => canonicalClientKey(c.name))
   );
   const extraClients = dynamicClients.filter(
-    (c) => !hardcodedNames.has(String(c.name).trim().toLowerCase())
+    (c) => !curatedKeys.has(canonicalClientKey(c.name))
   );
   const allClients = [...SITE_DATA.CLIENTS, ...extraClients];
 
@@ -92,12 +96,14 @@ export default async function ClientsPage() {
                     </div>
                   </>
                 );
-                // Hardcoded clients have detail pages; dynamic ones don't, so
-                // render them as a non-linking card to avoid 404s.
-                return c.dynamic ? (
-                  <div key={c.id} className={cls}>{inner}</div>
-                ) : (
-                  <Link key={c.id} href={`/clients/${c.id}`} className={cls}>{inner}</Link>
+                // Curated clients link by their roster id; dynamic clients
+                // (from Supabase) link by a slug of their name. Both resolve in
+                // app/clients/[id]/page.jsx and show their real Supabase work.
+                const href = c.dynamic
+                  ? `/clients/${toSlug(c.name)}`
+                  : `/clients/${c.id}`;
+                return (
+                  <Link key={c.id} href={href} className={cls}>{inner}</Link>
                 );
               })}
             </div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { createClient } from '../../../utils/supabase/server';
+import { getClientOptions } from '../../../lib/queries';
 import ProjectsClient from './ProjectsClient';
 
 export const dynamic = 'force-dynamic';
@@ -20,13 +21,14 @@ export default async function ProjectsAdminPage({ searchParams }) {
     .order('title', { ascending: true });
   if (filterCat) query = query.eq('category_id', filterCat);
 
-  const [{ data: projects }, { data: categories }] = await Promise.all([
+  const [{ data: projects }, { data: categories }, clientOptions] = await Promise.all([
     query,
     supabase
       .from('project_categories')
       .select('id, name, slug, is_active')
       .order('sort_order', { ascending: true })
       .order('name', { ascending: true }),
+    getClientOptions(),
   ]);
 
   return (
@@ -42,6 +44,7 @@ export default async function ProjectsAdminPage({ searchParams }) {
       <ProjectsClient
         initialProjects={projects || []}
         categories={categories || []}
+        clientOptions={clientOptions || []}
         filterCat={filterCat}
       />
     </div>

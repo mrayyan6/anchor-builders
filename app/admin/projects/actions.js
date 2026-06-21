@@ -23,7 +23,25 @@ function bust(projectId) {
   revalidatePath('/admin/categories');
   if (projectId) revalidatePath(`/admin/projects/${projectId}/images`);
   revalidatePath('/projects');
+  revalidatePath('/clients', 'layout');
   revalidatePath('/', 'layout');
+}
+
+/**
+ * Best-effort: remember a project's client in the optional `clients` table so it
+ * appears in the admin dropdown next time. Silently ignored if the table does
+ * not exist (it's optional) — never blocks the project save.
+ */
+async function recordClient(supabase, name) {
+  const trimmed = String(name || '').trim();
+  if (!trimmed) return;
+  try {
+    await supabase
+      .from('clients')
+      .upsert({ name: trimmed }, { onConflict: 'name', ignoreDuplicates: true });
+  } catch {
+    // `clients` table is optional — ignore.
+  }
 }
 
 /**
@@ -58,7 +76,10 @@ async function resolveCategoryId(supabase, typedName) {
   const { data: existing, error: listErr } = await supabase
     .from('project_categories')
     .select('id, name, sort_order');
-  if (listErr) return { error: listErr.message };
+  if (listErr) {
+    console.error('resolveCategoryId (list):', listErr.message);
+    return { error: 'Could not load categories. Please try again.' };
+  }
 
   const wanted = name.toLowerCase();
   // Temp variable holds any case-insensitive match before we decide to create.
@@ -74,7 +95,10 @@ async function resolveCategoryId(supabase, typedName) {
     .insert({ name, slug, sort_order: nextOrder, is_active: true })
     .select('id')
     .single();
-  if (createErr) return { error: `Could not create category: ${createErr.message}` };
+  if (createErr) {
+    console.error('resolveCategoryId (create):', createErr.message);
+    return { error: 'Could not create category. Please try again.' };
+  }
   return { id: created.id, created: true };
 }
 
@@ -111,8 +135,12 @@ export async function createProject(form) {
     .insert({ ...rest, category_id: cat.id, slug })
     .select('id')
     .single();
-  if (error) return { error: error.message };
+  if (error) {
+    console.error('createProject:', error.message);
+    return { error: 'Could not save project. Please try again.' };
+  }
 
+  await recordClient(supabase, v.client);
   bust(data?.id);
   return { ok: true, id: data?.id };
 }
@@ -135,8 +163,12 @@ export async function updateProject(form) {
     .from('projects')
     .update({ ...rest, category_id: cat.id, updated_at: new Date().toISOString() })
     .eq('id', id);
-  if (error) return { error: error.message };
+  if (error) {
+    console.error('updateProject:', error.message);
+    return { error: 'Could not save project. Please try again.' };
+  }
 
+  await recordClient(supabase, v.client);
   bust(id);
   return { ok: true };
 }
@@ -159,11 +191,17 @@ export async function deleteProject(form) {
   if (paths.length > 0) {
     const service = createServiceClient();
     const { error: rmErr } = await service.storage.from(STORAGE_BUCKET).remove(paths);
-    if (rmErr) return { error: `Storage cleanup failed: ${rmErr.message}` };
+    if (rmErr) {
+      console.error('deleteProject (storage):', rmErr.message);
+      return { error: 'Could not delete project. Please try again.' };
+    }
   }
 
   const { error } = await supabase.from('projects').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) {
+    console.error('deleteProject:', error.message);
+    return { error: 'Could not delete project. Please try again.' };
+  }
 
   bust(id);
   return { ok: true };
