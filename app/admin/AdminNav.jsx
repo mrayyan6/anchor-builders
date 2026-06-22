@@ -7,6 +7,7 @@ const ITEMS = [
   { href: '/admin',              label: 'Dashboard' },
   { href: '/admin/categories',   label: 'Categories' },
   { href: '/admin/projects',     label: 'Projects' },
+  { href: '/admin/clients',      label: 'Clients' },
 ];
 
 export default function AdminNav() {

@@ -2,39 +2,30 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { SITE_DATA } from '../../../src/data';
 import { Reveal, QuoteBlock, CTABlock } from '../../../src/components';
-import { getProjectsForClient, getDynamicClients } from '../../../lib/queries';
-import { toSlug } from '../../../utils/slug';
+import { getClientRoster, getProjectsForClient } from '../../../lib/queries';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ClientDetailPage({ params }) {
   const { id } = params;
 
-  // Resolve the client: curated roster first (by roster id), otherwise a
-  // dynamic client (derived from Supabase projects.client) matched by name-slug.
-  const curated = SITE_DATA.byId(SITE_DATA.CLIENTS, id);
-  let client = curated;
-  if (!client) {
-    const dynamicClients = await getDynamicClients();
-    client = dynamicClients.find((d) => toSlug(d.name) === id) || null;
-  }
+  // DB-first roster (clients table) with curated/dynamic fallback. Resolve by
+  // the slug route key (e.g. /clients/parc, /clients/allied).
+  const roster = await getClientRoster();
+  const client = roster.find((c) => c.slug === id);
   if (!client) notFound();
 
   // Real, displayable Supabase projects for this client (no hardcoded samples).
   const projects = await getProjectsForClient(client.name);
-  const testimonial = curated
-    ? SITE_DATA.TESTIMONIALS.find((t) => t.clientId === id)
-    : null;
+  const uploaded = projects.length;
 
-  // Curated marketing count stays as the headline number; the grid shows what's
-  // actually uploaded. They can differ → show an "Other projects…" note.
-  const curatedCount = curated ? curated.projects : null;
-  const displayed = projects.length;
-  const statCount = curatedCount != null ? curatedCount : displayed;
-  const showShortfall =
-    displayed > 0 && curatedCount != null && displayed < curatedCount;
+  // total_projects from the clients table is the headline count; never show a
+  // total below what's actually displayed.
+  const total = client.total ?? 0;
+  const statCount = Math.max(total, uploaded);
+  const showShortfall = uploaded > 0 && uploaded < total;
+  const hasTestimonial = !!client.testimonialQuote;
 
   return (
     <main className="page">
@@ -57,24 +48,24 @@ export default async function ClientDetailPage({ params }) {
         </div>
       </header>
 
-      {curated && client.since && (
+      {client.since && (
         <section className="section">
           <div className="container-wide">
             <div className="sec-head">
               <div className="sh-l"><span className="eyebrow"><span className="dot"></span>RELATIONSHIP</span></div>
               <div className="sh-r">
                 <h2 className="hd-1">A {(2026 - client.since)}-year partnership.</h2>
-                <p className="body-lg" style={{ marginTop: 14 }}>Anchor has worked with {client.name} since {client.since}, delivering {client.projects} {client.projects === 1 ? 'project' : 'projects'} across {client.sector === 'Government' ? 'institutional, research and administrative' : client.sector === 'Retainer' ? 'commercial and operational' : 'developer and hospitality'} mandates.</p>
+                <p className="body-lg" style={{ marginTop: 14 }}>Anchor has worked with {client.name} since {client.since}, delivering {statCount} {statCount === 1 ? 'project' : 'projects'} across {client.sector === 'Government' ? 'institutional, research and administrative' : client.sector === 'Retainer' ? 'commercial and operational' : 'developer and hospitality'} mandates.</p>
               </div>
             </div>
           </div>
         </section>
       )}
 
-      {testimonial && (
+      {hasTestimonial && (
         <section className="section warm">
           <div className="container-narrow">
-            <QuoteBlock quote={testimonial.quote} who={testimonial.who} />
+            <QuoteBlock quote={client.testimonialQuote} who={client.testimonialWho || client.name} />
           </div>
         </section>
       )}
@@ -86,7 +77,7 @@ export default async function ClientDetailPage({ params }) {
             <div className="sh-r"><h2 className="hd-1">All work for {client.name}.</h2></div>
           </div>
 
-          {displayed === 0 ? (
+          {uploaded === 0 ? (
             <p className="body-lg">Projects for this client will be uploaded soon.</p>
           ) : (
             <>

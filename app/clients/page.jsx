@@ -1,10 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import { SITE_DATA } from '../../src/data';
 import { Reveal, CTABlock } from '../../src/components';
-import { getDynamicClients } from '../../lib/queries';
-import { canonicalClientKey } from '../../utils/clients';
-import { toSlug } from '../../utils/slug';
+import { getClientRoster } from '../../lib/queries';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,18 +16,10 @@ function getClientGridSpanClass(index, total) {
 }
 
 export default async function ClientsPage() {
-  // Curated roster always shown. Clients derived from Supabase projects are
-  // merged in, skipping any that canonically match a curated client (so e.g. a
-  // project stored as "Pakistan Agricultural Research Council" doesn't create a
-  // duplicate of the curated "PARC").
-  const dynamicClients = await getDynamicClients();
-  const curatedKeys = new Set(
-    SITE_DATA.CLIENTS.map((c) => canonicalClientKey(c.name))
-  );
-  const extraClients = dynamicClients.filter(
-    (c) => !curatedKeys.has(canonicalClientKey(c.name))
-  );
-  const allClients = [...SITE_DATA.CLIENTS, ...extraClients];
+  // DB-first roster: the Supabase `clients` table drives metadata + total
+  // counts (with curated SITE_DATA fallback), and clients found only in
+  // projects.client are merged in. Counts come from clients.total_projects.
+  const allClients = await getClientRoster();
 
   const grouped = ['Government', 'Retainer', 'Private'].map((s) => ({
     sector: s,
@@ -87,7 +76,7 @@ export default async function ClientsPage() {
                   <>
                     <div className="cc-meta">
                       <span>{c.since ? `SINCE ${c.since}` : ''}</span>
-                      <span>{c.projects != null ? `${c.projects} ${c.projects === 1 ? 'PROJECT' : 'PROJECTS'}` : ''}</span>
+                      <span>{c.total != null ? `${c.total} ${c.total === 1 ? 'PROJECT' : 'PROJECTS'}` : ''}</span>
                     </div>
                     <span className="cc-arrow">↗</span>
                     <div className="cc-name-wrap">
@@ -96,14 +85,9 @@ export default async function ClientsPage() {
                     </div>
                   </>
                 );
-                // Curated clients link by their roster id; dynamic clients
-                // (from Supabase) link by a slug of their name. Both resolve in
-                // app/clients/[id]/page.jsx and show their real Supabase work.
-                const href = c.dynamic
-                  ? `/clients/${toSlug(c.name)}`
-                  : `/clients/${c.id}`;
+                // Every client resolves in app/clients/[id]/page.jsx by slug.
                 return (
-                  <Link key={c.id} href={href} className={cls}>{inner}</Link>
+                  <Link key={c.slug} href={`/clients/${c.slug}`} className={cls}>{inner}</Link>
                 );
               })}
             </div>

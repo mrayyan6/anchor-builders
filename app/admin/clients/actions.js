@@ -1,0 +1,92 @@
+'use server';
+import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
+import { createClient } from '../../../utils/supabase/server';
+import { toSlug } from '../../../utils/slug';
+
+async function requireAdmin() {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+  if (profile?.role !== 'admin') redirect('/');
+  return supabase;
+}
+
+function bust() {
+  revalidatePath('/admin/clients');
+  revalidatePath('/clients', 'layout');
+  revalidatePath('/', 'layout');
+}
+
+function readForm(form) {
+  const totalRaw = form.get('total_projects');
+  return {
+    name: String(form.get('name') || '').trim(),
+    full_name: String(form.get('full_name') || '').trim() || null,
+    sector: String(form.get('sector') || '').trim() || null,
+    since: form.get('since') ? Number(form.get('since')) : null,
+    total_projects:
+      totalRaw === null || totalRaw === ''
+        ? 0
+        : Math.max(0, Math.trunc(Number(totalRaw) || 0)),
+    testimonial_quote: String(form.get('testimonial_quote') || '').trim() || null,
+    testimonial_who: String(form.get('testimonial_who') || '').trim() || null,
+  };
+}
+
+export async function createClientRow(form) {
+  const supabase = await requireAdmin();
+  const v = readForm(form);
+  if (!v.name) return { error: 'Name is required.' };
+  const slug = toSlug(form.get('slug') || v.name);
+  if (!slug) return { error: 'Could not generate a slug from the name.' };
+
+  const { error } = await supabase.from('clients').insert({ ...v, slug });
+  if (error) {
+    console.error('createClientRow:', error.message);
+    return { error: 'Could not save client. Please try again.' };
+  }
+  bust();
+  return { ok: true };
+}
+
+export async function updateClientRow(form) {
+  const supabase = await requireAdmin();
+  const id = String(form.get('id') || '');
+  if (!id) return { error: 'Missing client id.' };
+  const v = readForm(form);
+  if (!v.name) return { error: 'Name is required.' };
+
+  const patch = { ...v };
+  const slugInput = form.get('slug');
+  if (slugInput) patch.slug = toSlug(slugInput);
+
+  const { error } = await supabase.from('clients').update(patch).eq('id', id);
+  if (error) {
+    console.error('updateClientRow:', error.message);
+    return { error: 'Could not update client. Please try again.' };
+  }
+  bust();
+  return { ok: true };
+}
+
+export async function deleteClientRow(form) {
+  const supabase = await requireAdmin();
+  const id = String(form.get('id') || '');
+  if (!id) return { error: 'Missing client id.' };
+
+  // Removes only the roster row; project rows (projects.client text) are left
+  // untouched, so no project is orphaned or deleted.
+  const { error } = await supabase.from('clients').delete().eq('id', id);
+  if (error) {
+    console.error('deleteClientRow:', error.message);
+    return { error: 'Could not delete client. Please try again.' };
+  }
+  bust();
+  return { ok: true };
+}

@@ -3,7 +3,8 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { createClient, createServiceClient } from '../../../utils/supabase/server';
 import { toSlug } from '../../../utils/slug';
-import { STORAGE_BUCKET } from '../../../lib/queries';
+import { STORAGE_BUCKET, getProjectsForClient } from '../../../lib/queries';
+import { canonicalClientKey } from '../../../utils/clients';
 
 async function requireAdmin() {
   const supabase = createClient();
@@ -28,17 +29,49 @@ function bust(projectId) {
 }
 
 /**
- * Best-effort: remember a project's client in the optional `clients` table so it
- * appears in the admin dropdown next time. Silently ignored if the table does
- * not exist (it's optional) — never blocks the project save.
+ * Keep clients.total_projects consistent after a project is saved. Best-effort
+ * and never blocks the save (the `clients` table is optional).
+ *
+ *  - Matches the client row by CANONICAL key, so a typed "Allied Bank Limited"
+ *    updates the existing "Allied Bank" row instead of duplicating it.
+ *  - `increment` (admin marked it a new/additional project, or first-time
+ *    client assignment) bumps the total by 1.
+ *  - Always enforces total_projects >= the client's displayable project count.
+ *  - A brand-new/custom client with no row yet is created with total 1 (the
+ *    first project), never below the uploaded count.
+ *  - Never decrements; an old client losing a project keeps its total.
  */
-async function recordClient(supabase, name) {
-  const trimmed = String(name || '').trim();
-  if (!trimmed) return;
+async function reconcileClientTotal(supabase, clientName, increment) {
+  const name = String(clientName || '').trim();
+  if (!name) return;
+  const key = canonicalClientKey(name);
+  const slug = toSlug(name);
   try {
-    await supabase
+    const uploaded = (await getProjectsForClient(name)).length;
+    const { data: rows } = await supabase
       .from('clients')
-      .upsert({ name: trimmed }, { onConflict: 'name', ignoreDuplicates: true });
+      .select('id, name, slug, total_projects');
+    const existing = (rows || []).find((r) => canonicalClientKey(r.name) === key);
+
+    if (!existing) {
+      await supabase
+        .from('clients')
+        .upsert(
+          { name, slug, total_projects: Math.max(1, uploaded) },
+          { onConflict: 'name' }
+        );
+      return;
+    }
+
+    let next = existing.total_projects ?? 0;
+    if (increment) next += 1;
+    if (next < uploaded) next = uploaded; // total must never be below uploaded
+    const patch = {};
+    if (next !== (existing.total_projects ?? 0)) patch.total_projects = next;
+    if (!existing.slug) patch.slug = slug;
+    if (Object.keys(patch).length > 0) {
+      await supabase.from('clients').update(patch).eq('id', existing.id);
+    }
   } catch {
     // `clients` table is optional — ignore.
   }
@@ -140,7 +173,9 @@ export async function createProject(form) {
     return { error: 'Could not save project. Please try again.' };
   }
 
-  await recordClient(supabase, v.client);
+  const isNewForClient =
+    form.get('is_new_for_client') === 'on' || form.get('is_new_for_client') === 'true';
+  await reconcileClientTotal(supabase, v.client, isNewForClient);
   bust(data?.id);
   return { ok: true, id: data?.id };
 }
@@ -156,6 +191,15 @@ export async function updateProject(form) {
   const cat = await resolveCategoryId(supabase, v.category_name);
   if (cat.error) return { error: cat.error };
 
+  // Capture the previous client so we can detect a first-time assignment (which
+  // should bump the count) vs. an ordinary edit (which should not).
+  const { data: before } = await supabase
+    .from('projects')
+    .select('client')
+    .eq('id', id)
+    .maybeSingle();
+  const oldClient = before?.client || '';
+
   // Slug is intentionally left unchanged on edit to keep existing URLs and
   // bookmarks stable.
   const { category_name, ...rest } = v;
@@ -168,7 +212,14 @@ export async function updateProject(form) {
     return { error: 'Could not save project. Please try again.' };
   }
 
-  await recordClient(supabase, v.client);
+  // Only bump the count when the admin marks it new, or when a project gets a
+  // client for the first time. A plain edit never increments; reconcile still
+  // enforces total >= uploaded for the (possibly new) client. Old client totals
+  // are intentionally left untouched (never auto-decremented).
+  const isNewForClient =
+    form.get('is_new_for_client') === 'on' || form.get('is_new_for_client') === 'true';
+  const firstAssignment = !String(oldClient).trim() && !!String(v.client).trim();
+  await reconcileClientTotal(supabase, v.client, isNewForClient || firstAssignment);
   bust(id);
   return { ok: true };
 }

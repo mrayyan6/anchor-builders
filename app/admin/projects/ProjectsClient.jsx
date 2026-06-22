@@ -16,6 +16,10 @@ function emptyForm(defaults = {}) {
     is_featured: false,
     is_active: true,
     sort_order: 0,
+    // When true, saving counts this as an additional project for the client and
+    // bumps clients.total_projects. Default false = an older project just being
+    // uploaded now (no count bump). Always reset to false on edit.
+    is_new_for_client: false,
   };
 }
 
@@ -61,6 +65,7 @@ export default function ProjectsClient({ initialProjects, categories, clientOpti
       is_featured: !!p.is_featured,
       is_active: !!p.is_active,
       sort_order: p.sort_order ?? 0,
+      is_new_for_client: false,
     });
   }
 
@@ -82,6 +87,7 @@ export default function ProjectsClient({ initialProjects, categories, clientOpti
     }
     if (draft.is_featured) fd.set('is_featured', 'on');
     if (draft.is_active) fd.set('is_active', 'on');
+    if (draft.is_new_for_client) fd.set('is_new_for_client', 'on');
     fd.set('sort_order', String(draft.sort_order || 0));
     Object.entries(extra).forEach(([k, v]) => fd.set(k, v));
     return fd;
@@ -254,6 +260,17 @@ function ProjectFields({ draft, setDraft, categories, clientOptions = [], disabl
         options={clientOptions}
         disabled={disabled}
       />
+      <div className="field check">
+        <label>
+          <input
+            type="checkbox"
+            checked={draft.is_new_for_client}
+            onChange={(e) => setDraft({ ...draft, is_new_for_client: e.target.checked })}
+            disabled={disabled}
+          /> This is a new project for this client
+        </label>
+        <span className="field-hint mono">Leave off when uploading an older/previous project. Check to also raise the client&apos;s total project count.</span>
+      </div>
       <div className="field">
         <label>Category</label>
         <input
