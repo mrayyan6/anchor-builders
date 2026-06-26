@@ -8,12 +8,11 @@ export const metadata = { title: 'Services — Anchor Associates & Builders' };
 export default function ServicesPage() {
   return (
     <main className="page">
-      <header className="page-header">
+      <header className="page-header page-header-center">
         <div className="container-wide">
           <div className="crumb">— SERVICES / CAPABILITIES</div>
           <div className="title">
             <h1 className="hd-display">Eight disciplines.<br/>One contract.</h1>
-            <p className="lede">From turnkey civil works to acoustically-engineered theatre sets, Anchor delivers across the construction stack — under a single delivery team.</p>
           </div>
         </div>
       </header>

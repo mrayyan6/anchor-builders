@@ -4,10 +4,6 @@ import './globals.css';
 import AppShell from './AppShell';
 import { createClient } from '../utils/supabase/server';
 
-// Self-hosted, render-blocking-free font loading via next/font. Mirrors the
-// previous Google Fonts <link> (same families/weights/styles) but eliminates
-// the external fonts.googleapis.com + fonts.gstatic.com round-trips and adds
-// automatic font-display: swap + size-adjust fallbacks (reduces FCP/LCP/CLS).
 const serif = Cormorant_Garamond({
   subsets: ['latin'],
   weight: ['400', '500'],

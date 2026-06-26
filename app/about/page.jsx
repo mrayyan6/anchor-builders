@@ -60,7 +60,7 @@ export default function AboutPage() {
       {/* Legacy & Culture — paired editorial blocks */}
       <section className="section warm">
         <div className="container-wide">
-          <div className="sec-head">
+          <div className="sec-head sec-center">
             <div className="sh-l"><span className="eyebrow"><span className="dot"></span>OUR VALUES</span></div>
             <div className="sh-r"><h2 className="hd-1">A <i>legacy</i> built on discipline, dedication and standards.</h2></div>
           </div>
@@ -99,7 +99,7 @@ export default function AboutPage() {
       {/* Why Choose Anchor — differentiators */}
       <section className="section">
         <div className="container-wide">
-          <div className="sec-head">
+          <div className="sec-head sec-center">
             <div className="sh-l"><span className="eyebrow"><span className="dot"></span>WHY ANCHOR</span></div>
             <div className="sh-r"><h2 className="hd-1">What sets Anchor apart.</h2></div>
           </div>
@@ -119,7 +119,7 @@ export default function AboutPage() {
       {/* Timeline */}
       <section className="section warm">
         <div className="container">
-          <div className="sec-head">
+          <div className="sec-head sec-center">
             <div className="sh-l"><span className="eyebrow"><span className="dot"></span>MILESTONES</span></div>
             <div className="sh-r"><h2 className="hd-1">A decade and a half, in chapters.</h2></div>
           </div>
@@ -140,7 +140,7 @@ export default function AboutPage() {
       {/* Team */}
       <section className="section">
         <div className="container-wide">
-          <div className="sec-head">
+          <div className="sec-head sec-center">
             <div className="sh-l"><span className="eyebrow"><span className="dot"></span>LEADERSHIP</span></div>
             <div className="sh-r"><h2 className="hd-1">The people steering every project.</h2></div>
           </div>

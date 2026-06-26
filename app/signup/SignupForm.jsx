@@ -40,12 +40,7 @@ export default function SignupForm() {
     });
     setBusy(false);
 
-    // Do NOT surface the raw Supabase error — its text (e.g. "User already
-    // registered") reveals whether an email exists (user enumeration). Show one
-    // neutral message for both the error case and the "confirmation pending"
-    // case so existing vs. new emails are indistinguishable. (Client-side
-    // validation above still gives specific feedback for empty/short/mismatched
-    // passwords, which are not enumeration leaks.)
+    // Neutral message for both error and confirmation-pending to avoid user enumeration.
     if (signUpErr || !data?.session) {
       setInfo('If this email is valid, check your inbox to continue.');
       return;

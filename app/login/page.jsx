@@ -28,7 +28,7 @@ export default async function LoginPage({ searchParams }) {
             <span className="eyebrow"><span className="dot"></span>SIGN IN</span>
             <h1 className="hd-2" style={{ marginTop: 14 }}>Welcome back.</h1>
             <p className="body-md" style={{ marginTop: 10, color: 'var(--ink-3)' }}>
-              Sign in to your Anchor account. Admins are taken straight to the project panel.
+              Sign in to your Anchor account.
             </p>
           </div>
           <LoginForm next={next} />

@@ -6,10 +6,7 @@ export async function middleware(request) {
 
 export const config = {
   matcher: [
-    /*
-     * Run on every request except static assets, image optimisation,
-     * and favicon. Includes /admin and /login (auth gating).
-     */
+    /* All routes except static assets and images. */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|css|js|ico)$).*)',
   ],
 };

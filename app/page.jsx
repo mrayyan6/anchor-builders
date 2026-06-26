@@ -34,7 +34,7 @@ export default async function HomePage() {
       {/* Intro / proud tradition */}
       <section className="section">
         <div className="container-wide">
-          <div className="sec-head">
+          <div className="sec-head sec-center">
             <div className="sh-l">
               <span className="eyebrow"><span className="dot"></span>OUR APPROACH</span>
             </div>
@@ -73,7 +73,7 @@ export default async function HomePage() {
       {/* Why Choose Anchor — differentiators */}
       <section className="section dark">
         <div className="container-wide">
-          <div className="sec-head">
+          <div className="sec-head sec-center">
             <div className="sh-l"><span className="eyebrow dark"><span className="dot"></span>WHY ANCHOR</span></div>
             <div className="sh-r">
               <h2 className="hd-1" style={{ color: 'var(--on-dark)' }}>What sets us apart, on every site.</h2>
@@ -96,14 +96,12 @@ export default async function HomePage() {
       {/* Services preview */}
       <section className="section warm">
         <div className="container-wide">
-          <div className="sec-head">
+          <div className="sec-head sec-center">
             <div className="sh-l"><span className="eyebrow"><span className="dot"></span>SERVICES</span></div>
-            <div className="sh-r" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 24 }}>
-              <div>
-                <h2 className="hd-1">A wide range of services, under one delivery team.</h2>
-                <p className="lede" style={{ marginTop: 16 }}>From the first estimate to final handover — civil, MEP, prefab, interiors, soundproofing, studios, shades, research facilities, and pre-construction design. The technical capability and site-level discipline to ensure every project reaches its full potential.</p>
-              </div>
-              <Link href="/services" className="link-arrow">View all services</Link>
+            <div className="sh-r">
+              <h2 className="hd-1">A wide range of services, under one delivery team.</h2>
+              <p className="lede" style={{ marginTop: 16 }}>From the first estimate to final handover — civil, MEP, prefab, interiors, soundproofing, studios, shades, research facilities, and pre-construction design. The technical capability and site-level discipline to ensure every project reaches its full potential.</p>
+              <Link href="/services" className="link-arrow" style={{ marginTop: 20 }}>View all services</Link>
             </div>
           </div>
           <div className="svc-grid">
@@ -125,14 +123,12 @@ export default async function HomePage() {
       {featured.length > 0 && (
         <section className="section dark">
           <div className="container-wide">
-            <div className="sec-head">
+            <div className="sec-head sec-center">
               <div className="sh-l"><span className="eyebrow dark"><span className="dot"></span>SELECTED WORK</span></div>
-              <div className="sh-r" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 24 }}>
-                <div>
-                  <h2 className="hd-1" style={{ color: 'var(--on-dark)' }}>We take pride in<br/>the projects we've done.</h2>
-                  <p className="lede" style={{ color: 'rgba(236,232,223,0.7)', marginTop: 16 }}>From large-scale civil works to highly specialist builds, every project is an institution's investment in its own future — and we treat it accordingly.</p>
-                </div>
-                <Link href="/projects" className="link-arrow" style={{ color: 'var(--on-dark)' }}>View all projects</Link>
+              <div className="sh-r">
+                <h2 className="hd-1" style={{ color: 'var(--on-dark)' }}>We take pride in<br/>the projects we've done.</h2>
+                <p className="lede" style={{ color: 'rgba(236,232,223,0.7)', marginTop: 16 }}>From large-scale civil works to highly specialist builds, every project is an institution's investment in its own future — and we treat it accordingly.</p>
+                <Link href="/projects" className="link-arrow" style={{ color: 'var(--on-dark)', marginTop: 20 }}>View all projects</Link>
               </div>
             </div>
           </div>
@@ -144,11 +140,11 @@ export default async function HomePage() {
       {/* Client marquee + preview */}
       <section className="section">
         <div className="container-wide">
-          <div className="sec-head">
+          <div className="sec-head sec-center">
             <div className="sh-l"><span className="eyebrow"><span className="dot"></span>OUR CLIENTS</span></div>
-            <div className="sh-r" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', gap: 24 }}>
+            <div className="sh-r">
               <h2 className="hd-1">Trusted across <i>government,</i> retainer and private.</h2>
-              <Link href="/clients" className="link-arrow">All clients</Link>
+              <Link href="/clients" className="link-arrow" style={{ marginTop: 20 }}>All clients</Link>
             </div>
           </div>
         </div>

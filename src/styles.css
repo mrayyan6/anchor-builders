@@ -381,7 +381,7 @@ ul { list-style: none; }
 /* ---------- Image utility (ratio + bg) ---------- */
 .img-box { position: relative; overflow: hidden; background: var(--bg-2); }
 .img-box .bg { position: absolute; inset: 0; background-size: cover; background-position: center; transition: transform 1.4s var(--ease); }
-.img-box .img-box-img { object-fit: cover; object-position: center; transition: transform 1.4s var(--ease); z-index: 0; }
+.img-box .img-box-img { width: 100%; height: 100%; object-fit: cover; object-position: center; transition: transform 1.4s var(--ease); z-index: 0; }
 .img-box:hover .bg,
 .img-box:hover .img-box-img { transform: scale(1.04); }
 .img-box .ph {
@@ -880,6 +880,23 @@ footer .ft-bot .socials a:hover { opacity: 1; }
 
 /* ---------- Stats — responsive (already covered, ensure 2-col fallback) ---------- */
 @media (max-width: 540px) { .stats { grid-template-columns: 1fr; } }
+
+/* ---------- Centered page-header variant ---------- */
+.page-header-center .title {
+  display: block;
+  text-align: center;
+}
+.page-header-center .title .hd-display {
+  max-width: none;
+  margin: 0 auto;
+}
+
+/* ---------- Centered sec-head variant ----------
+   Eyebrow: 0–25% of container. Heading: 25–80%. Right 20% stays empty. */
+.sec-head.sec-center {
+  grid-template-columns: 25% 55%;
+  column-gap: 0;
+}
 
 /* ---------- Misc ---------- */
 .divider { height: 1px; background: var(--line); margin: 0; }

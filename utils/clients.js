@@ -1,16 +1,6 @@
 import { SITE_DATA } from '../src/data';
 
-/**
- * Client name matching helpers.
- *
- * The Supabase `projects.client` column is free text, so to reliably link a
- * project to a curated client we compare a *canonical key* rather than the raw
- * string. Normalisation strips accents/apostrophes, lowercases, and collapses
- * punctuation to spaces — but it keeps words intact, so distinct clients such
- * as "PMDC" ("pmdc") and "PMDC (Medical)" ("pmdc medical") never collapse
- * together. Known variants (full names, "Allied Bank Limited", etc.) are mapped
- * to the curated short name via an alias table built from SITE_DATA.CLIENTS.
- */
+// Normalises client names to a canonical key for fuzzy matching against the curated roster.
 
 function norm(value) {
   return String(value || '')
@@ -44,21 +34,12 @@ const ALIASES = (() => {
   return map;
 })();
 
-/**
- * Canonical key for a client string. Two values that refer to the same client
- * (e.g. "PARC" and "Pakistan Agricultural Research Council") return the same
- * key; distinct clients return distinct keys. Empty input -> ''.
- */
 export function canonicalClientKey(value) {
   const n = norm(value);
   if (!n) return '';
   return ALIASES.get(n) || n;
 }
 
-/**
- * Dropdown options for the admin client picker, derived from the curated
- * roster. Shape: { name (stored value / short name), fullName (description) }.
- */
 export function getCuratedClientOptions() {
   return SITE_DATA.CLIENTS.map((c) => ({
     name: c.name,

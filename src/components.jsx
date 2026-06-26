@@ -88,11 +88,7 @@ function Nav({ transparent = true, auth = null }) {
   );
 }
 
-/**
- * Auth controls shown in the nav. State source is the `auth` prop, fetched
- * server-side in the root layout. Logout posts to the existing /auth/signout
- * route handler which calls supabase.auth.signOut() and redirects to /login.
- */
+// Nav auth: sign in link, admin link, or log out button.
 function NavAuth({ auth, mobile = false, onAfter }) {
   if (!auth) {
     return (
@@ -200,9 +196,6 @@ function ImgBox({ src, ratio = 'r-43', alt = '', className = '', label = '', pri
 }
 
 // ---------- Project card ----------
-// `href` lets callers override the link target. Defaults to the public
-// /projects index so legacy callers (services/clients related lists)
-// remain functional after the routes were migrated to slug-based paths.
 function ProjectCard({ project, ratio = 'r-43', href }) {
   const cat = SITE_DATA.byId(SITE_DATA.CATEGORIES, project.categoryId);
   return (

@@ -1,10 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 
-/**
- * Refresh the Supabase session on every request and propagate the updated
- * auth cookies back to the browser.
- */
+// Refreshes the Supabase session on every request and gates /admin for auth.
 export async function updateSession(request) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -67,8 +64,7 @@ export async function updateSession(request) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  // Already-signed-in users hitting /login or /signup go to /
-  // (the /login page itself does a role-based redirect to /admin where appropriate).
+  // Redirect signed-in users away from auth pages.
   if (isAuthPage && user) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = '/';

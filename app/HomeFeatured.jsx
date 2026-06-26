@@ -4,11 +4,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { HorizontalSwiper } from '../src/components';
 
-/**
- * Renders the featured-projects swiper on the homepage using Supabase data.
- * Lives in its own client component so we can keep app/page.jsx a server
- * component (data fetched server-side, SEO-friendly).
- */
 export default function HomeFeatured({ items }) {
   if (!items || items.length === 0) return null;
   return (

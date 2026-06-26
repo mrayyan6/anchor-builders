@@ -26,16 +26,13 @@ export default async function ClientsPage() {
     list: allClients.filter((c) => c.sector === s),
   }));
 
-  const totalCount = allClients.length;
-
   return (
     <main className="page">
-      <header className="page-header">
+      <header className="page-header page-header-center">
         <div className="container-wide">
           <div className="crumb">— CLIENTS / OUR VALUED CLIENTS</div>
           <div className="title">
             <h1 className="hd-display">A roster built over <i>fifteen years.</i></h1>
-            <p className="lede">{totalCount}+ institutions trust Anchor — from Pakistan&apos;s federal ministries, research councils and universities to retainer accounts in telecom, banking, and private real estate.</p>
           </div>
         </div>
       </header>

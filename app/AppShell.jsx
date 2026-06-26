@@ -2,7 +2,6 @@
 import React, { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { Nav, SiteFooter } from '../src/components';
-import { PageTransition } from '../src/animations';
 
 export default function AppShell({ children, auth = null }) {
   const pathname = usePathname() || '/';
@@ -30,7 +29,6 @@ export default function AppShell({ children, auth = null }) {
 
   return (
     <>
-      <PageTransition routeKey={pathname} />
       <Nav transparent={transparent} auth={auth} />
       {children}
       <SiteFooter />
