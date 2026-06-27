@@ -1,6 +1,9 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 
+const IDLE_MS = 30 * 60 * 1000; // 30-minute idle timeout
+const LAST_ACTIVE_COOKIE = 'anch_la';
+
 // Refreshes the Supabase session on every request and gates /admin for auth.
 export async function updateSession(request) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -8,6 +11,7 @@ export async function updateSession(request) {
   const pathname = request.nextUrl.pathname;
   const isAdminPath = pathname.startsWith('/admin');
   const isAuthPage = pathname === '/login' || pathname === '/signup';
+  const isSignoutPath = pathname.startsWith('/auth/signout');
 
   if (!supabaseUrl || !supabaseAnonKey) {
     console.error(
@@ -54,6 +58,28 @@ export async function updateSession(request) {
     user = data?.user || null;
   } catch (error) {
     console.error('Supabase middleware session refresh failed:', error?.message || error);
+  }
+
+  // 30-minute idle timeout. Skipped on the signout path to avoid redirect loops.
+  if (user && !isSignoutPath) {
+    const raw = request.cookies.get(LAST_ACTIVE_COOKIE)?.value;
+    const now = Date.now();
+    if (raw) {
+      const last = parseInt(raw, 10);
+      if (!isNaN(last) && now - last > IDLE_MS) {
+        const target = request.nextUrl.clone();
+        target.pathname = '/auth/signout';
+        target.search = '?timeout=1';
+        return NextResponse.redirect(target, { status: 303 });
+      }
+    }
+    response.cookies.set(LAST_ACTIVE_COOKIE, String(now), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 1800,
+      path: '/',
+    });
   }
 
   // Gate /admin/* — anonymous users get bounced to /login (with ?next=...)

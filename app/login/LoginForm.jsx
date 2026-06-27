@@ -32,7 +32,9 @@ export default function LoginForm({ next }) {
     }
 
     // Decide where to send the user based on their profile role.
-    let dest = next || '/';
+    // Reject external or protocol-relative URLs in the ?next= param (open redirect guard).
+    const safeNext = typeof next === 'string' && /^\/(?!\/)/.test(next) ? next : '';
+    let dest = safeNext || '/';
     try {
       const userId = data?.user?.id;
       if (userId) {
@@ -41,7 +43,7 @@ export default function LoginForm({ next }) {
           .select('role')
           .eq('id', userId)
           .single();
-        if (!next) {
+        if (!safeNext) {
           dest = profile?.role === 'admin' ? '/admin' : '/';
         }
       }
