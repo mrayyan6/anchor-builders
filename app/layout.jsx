@@ -2,6 +2,7 @@ import React from 'react';
 import { Cormorant_Garamond, Manrope, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import AppShell from './AppShell';
+import SessionGuard from './SessionGuard';
 import { createClient } from '../utils/supabase/server';
 
 const serif = Cormorant_Garamond({
@@ -46,6 +47,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" className={`${serif.variable} ${sans.variable} ${mono.variable}`}>
       <body>
+        <SessionGuard />
         <AppShell auth={auth}>{children}</AppShell>
       </body>
     </html>
