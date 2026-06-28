@@ -24,16 +24,11 @@ function bust() {
 }
 
 function readForm(form) {
-  const totalRaw = form.get('total_projects');
   return {
     name: String(form.get('name') || '').trim(),
     full_name: String(form.get('full_name') || '').trim() || null,
     sector: String(form.get('sector') || '').trim() || null,
     since: form.get('since') ? Number(form.get('since')) : null,
-    total_projects:
-      totalRaw === null || totalRaw === ''
-        ? 0
-        : Math.max(0, Math.trunc(Number(totalRaw) || 0)),
     testimonial_quote: String(form.get('testimonial_quote') || '').trim() || null,
     testimonial_who: String(form.get('testimonial_who') || '').trim() || null,
   };

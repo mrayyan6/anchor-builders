@@ -10,57 +10,31 @@ export const dynamic = 'force-dynamic';
 export default async function ClientDetailPage({ params }) {
   const { id } = params;
 
-  // DB-first roster (clients table) with curated/dynamic fallback. Resolve by
-  // the slug route key (e.g. /clients/parc, /clients/allied).
   const roster = await getClientRoster();
   const client = roster.find((c) => c.slug === id);
   if (!client) notFound();
 
-  // Real, displayable Supabase projects for this client (no hardcoded samples).
   const projects = await getProjectsForClient(client.name);
-  const uploaded = projects.length;
-
-  // total_projects from the clients table is the headline count; never show a
-  // total below what's actually displayed.
-  const total = client.total ?? 0;
-  const statCount = Math.max(total, uploaded);
-  const showShortfall = uploaded > 0 && uploaded < total;
   const hasTestimonial = !!client.testimonialQuote;
 
   return (
     <main className="page">
       <header className="page-header dark">
         <div className="container-wide">
-          <div className="crumb"><Link href="/clients" style={{ color: 'inherit' }}>— CLIENTS</Link> / {client.sector.toUpperCase()}</div>
+          <div className="crumb"><Link href="/clients" style={{ color: 'inherit' }}>— CLIENTS</Link> / {client.name.toUpperCase()}</div>
           <div className="title">
             <h1 className="hd-display" style={{ color: 'var(--on-dark)' }}>{client.name}.</h1>
             <div>
               <p className="lede" style={{ color: 'rgba(236,232,223,0.85)', marginBottom: 16 }}>{client.fullName}</p>
-              <div style={{ display: 'flex', gap: 40, flexWrap: 'wrap', marginTop: 24 }}>
-                <div><div className="eyebrow dark">SECTOR</div><div className="hd-3" style={{ color: 'var(--on-dark)', marginTop: 4 }}>{client.sector}</div></div>
-                {client.since && (
+              {client.since && (
+                <div style={{ display: 'flex', gap: 40, flexWrap: 'wrap', marginTop: 24 }}>
                   <div><div className="eyebrow dark">PARTNER SINCE</div><div className="hd-3" style={{ color: 'var(--on-dark)', marginTop: 4 }}>{client.since}</div></div>
-                )}
-                <div><div className="eyebrow dark">PROJECTS</div><div className="hd-3" style={{ color: 'var(--on-dark)', marginTop: 4 }}>{statCount}</div></div>
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </header>
-
-      {client.since && (
-        <section className="section">
-          <div className="container-wide">
-            <div className="sec-head">
-              <div className="sh-l"><span className="eyebrow"><span className="dot"></span>RELATIONSHIP</span></div>
-              <div className="sh-r">
-                <h2 className="hd-1">A {(2026 - client.since)}-year partnership.</h2>
-                <p className="body-lg" style={{ marginTop: 14 }}>Anchor has worked with {client.name} since {client.since}, delivering {statCount} {statCount === 1 ? 'project' : 'projects'} across {client.sector === 'Government' ? 'institutional, research and administrative' : client.sector === 'Retainer' ? 'commercial and operational' : 'developer and hospitality'} mandates.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
 
       {hasTestimonial && (
         <section className="section warm">
@@ -72,55 +46,45 @@ export default async function ClientDetailPage({ params }) {
 
       <section className="section">
         <div className="container-wide">
-          <div className="sec-head">
-            <div className="sh-l"><span className="eyebrow"><span className="dot"></span>PROJECTS DELIVERED</span></div>
-            <div className="sh-r"><h2 className="hd-1">All work for {client.name}.</h2></div>
-          </div>
-
-          {uploaded === 0 ? (
+          {projects.length === 0 ? (
             <p className="body-lg">Projects for this client will be uploaded soon.</p>
           ) : (
-            <>
-              <div className="db-proj-grid">
-                {projects.map((p, i) => {
-                  const href = p.category?.slug
-                    ? `/projects/${p.category.slug}/${p.slug}`
-                    : '/projects';
-                  return (
-                    <Reveal key={p.id} delay={(i % 3) * 80}>
-                      <Link
-                        href={href}
-                        className="proj-card"
-                        data-cursor="view"
-                        data-cursor-label="View"
-                      >
-                        <div className="img-box r-43">
-                          {p.cover_image_url ? (
-                            <Image
-                              src={p.cover_image_url}
-                              alt={p.title}
-                              fill
-                              sizes="(max-width: 800px) 100vw, (max-width: 1280px) 50vw, 33vw"
-                              className="img-box-img"
-                            />
-                          ) : (
-                            <div className="ph">{p.title}</div>
-                          )}
-                        </div>
-                        <div className="cat">{p.category?.name || '—'}</div>
-                        <div className="meta">
-                          <div className="nm">{p.title}</div>
-                          <div className="loc">{[p.location, p.year_completed].filter(Boolean).join(' · ')}</div>
-                        </div>
-                      </Link>
-                    </Reveal>
-                  );
-                })}
-              </div>
-              {showShortfall && (
-                <p className="body-lg" style={{ marginTop: 32 }}>Other projects will be uploaded.</p>
-              )}
-            </>
+            <div className="db-proj-grid">
+              {projects.map((p, i) => {
+                const href = p.category?.slug
+                  ? `/projects/${p.category.slug}/${p.slug}`
+                  : '/projects';
+                return (
+                  <Reveal key={p.id} delay={(i % 3) * 80}>
+                    <Link
+                      href={href}
+                      className="proj-card"
+                      data-cursor="view"
+                      data-cursor-label="View"
+                    >
+                      <div className="img-box r-43">
+                        {p.cover_image_url ? (
+                          <Image
+                            src={p.cover_image_url}
+                            alt={p.title}
+                            fill
+                            sizes="(max-width: 800px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                            className="img-box-img"
+                          />
+                        ) : (
+                          <div className="ph">{p.title}</div>
+                        )}
+                      </div>
+                      <div className="cat">{p.category?.name || '—'}</div>
+                      <div className="meta">
+                        <div className="nm">{p.title}</div>
+                        <div className="loc">{[p.location, p.year_completed].filter(Boolean).join(' · ')}</div>
+                      </div>
+                    </Link>
+                  </Reveal>
+                );
+              })}
+            </div>
           )}
         </div>
       </section>

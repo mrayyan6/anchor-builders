@@ -16,10 +16,6 @@ function emptyForm(defaults = {}) {
     is_featured: false,
     is_active: true,
     sort_order: 0,
-    // When true, saving counts this as an additional project for the client and
-    // bumps clients.total_projects. Default false = an older project just being
-    // uploaded now (no count bump). Always reset to false on edit.
-    is_new_for_client: false,
   };
 }
 
@@ -260,17 +256,6 @@ function ProjectFields({ draft, setDraft, categories, clientOptions = [], disabl
         options={clientOptions}
         disabled={disabled}
       />
-      <div className="field check">
-        <label>
-          <input
-            type="checkbox"
-            checked={draft.is_new_for_client}
-            onChange={(e) => setDraft({ ...draft, is_new_for_client: e.target.checked })}
-            disabled={disabled}
-          /> This is a new project for this client
-        </label>
-        <span className="field-hint mono">Leave off when uploading an older/previous project. Check to also raise the client&apos;s total project count.</span>
-      </div>
       <div className="field">
         <label>Category</label>
         <input

@@ -11,7 +11,6 @@ function emptyForm() {
     full_name: '',
     sector: 'Private',
     since: '',
-    total_projects: 0,
     testimonial_quote: '',
     testimonial_who: '',
   };
@@ -35,7 +34,6 @@ export default function ClientsAdminClient({ initial }) {
       full_name: c.full_name || '',
       sector: c.sector || 'Private',
       since: c.since ?? '',
-      total_projects: c.total_projects ?? 0,
       testimonial_quote: c.testimonial_quote || '',
       testimonial_who: c.testimonial_who || '',
     });
@@ -73,7 +71,6 @@ export default function ClientsAdminClient({ initial }) {
     fd.set('full_name', draft.full_name || '');
     fd.set('sector', draft.sector || '');
     if (draft.since !== '' && draft.since !== null) fd.set('since', String(draft.since));
-    fd.set('total_projects', String(draft.total_projects ?? 0));
     fd.set('testimonial_quote', draft.testimonial_quote || '');
     fd.set('testimonial_who', draft.testimonial_who || '');
     Object.entries(extra).forEach(([k, v]) => fd.set(k, v));
@@ -134,18 +131,17 @@ export default function ClientsAdminClient({ initial }) {
               <th>Client</th>
               <th>Sector</th>
               <th style={{ width: 70 }}>Since</th>
-              <th style={{ width: 70 }}>Total</th>
               <th style={{ width: 180 }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {initial.length === 0 && (
-              <tr><td colSpan={5} className="admin-empty">No clients yet.</td></tr>
+              <tr><td colSpan={4} className="admin-empty">No clients yet.</td></tr>
             )}
             {initial.map((c) => (
               isEditing(c.id) ? (
                 <tr key={c.id} className="editing">
-                  <td colSpan={5}>
+                  <td colSpan={4}>
                     <form className="admin-form inline" onSubmit={onEditSubmit}>
                       <ClientFields draft={draft} setDraft={setDraft} disabled={pending} />
                       {error && <div className="form-error">{error}</div>}
@@ -169,7 +165,6 @@ export default function ClientsAdminClient({ initial }) {
                   </td>
                   <td>{c.sector || <em className="muted">—</em>}</td>
                   <td className="mono small">{c.since ?? '—'}</td>
-                  <td className="mono small">{c.total_projects ?? 0}</td>
                   <td>
                     <button className="link-btn" onClick={() => startEdit(c)} disabled={pending}>Edit</button>
                     <button className="link-btn danger" onClick={() => onDelete(c)} disabled={pending}>Delete</button>
@@ -224,17 +219,6 @@ function ClientFields({ draft, setDraft, disabled }) {
           onChange={(e) => setDraft({ ...draft, since: e.target.value === '' ? '' : Number(e.target.value) })}
           disabled={disabled}
         />
-      </div>
-      <div className="field">
-        <label>Total projects</label>
-        <input
-          type="number"
-          min={0}
-          value={draft.total_projects}
-          onChange={(e) => setDraft({ ...draft, total_projects: Math.max(0, Number(e.target.value) || 0) })}
-          disabled={disabled}
-        />
-        <span className="field-hint mono">Headline count shown on the client page (kept &ge; uploaded projects).</span>
       </div>
       <div className="field full">
         <label>Testimonial quote</label>

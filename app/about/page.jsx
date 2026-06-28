@@ -62,19 +62,19 @@ export default function AboutPage() {
         <div className="container-wide">
           <div className="sec-head sec-center">
             <div className="sh-l"><span className="eyebrow"><span className="dot"></span>OUR VALUES</span></div>
-            <div className="sh-r"><h2 className="hd-1">A <i>legacy</i> built on discipline, dedication and standards.</h2></div>
+            <div className="sh-r"><h2 className="hd-1" style={{ textAlign: 'center' }}>A <i>legacy</i> built on discipline, dedication and standards.</h2></div>
           </div>
 
           <div className="about-pair-grid">
             <Reveal>
-              <div className="eyebrow"><span className="dot"></span>LEGACY</div>
-              <h3 className="hd-3" style={{ marginTop: 12 }}>Discipline and dedication, project by project.</h3>
-              <p className="body-lg" style={{ marginTop: 14 }}>Our continued success is a testament to the commitment of our people and the standards we hold ourselves to on every site. We are proud of a core team of engineers, project managers and construction professionals who bring deep experience and genuine accountability to every project they oversee — that consistency in the people, in the process, and in the outcome is what keeps our clients returning.</p>
+              <div className="eyebrow" style={{ textAlign: 'center' }}><span className="dot"></span>LEGACY</div>
+              <h3 className="hd-3" style={{ marginTop: 12, textAlign: 'center' }}>Discipline and dedication, project by project.</h3>
+              <p className="body-lg" style={{ marginTop: 14, textAlign: 'center' }}>Our continued success is a testament to the commitment of our people and the standards we hold ourselves to on every site. We are proud of a core team of engineers, project managers and construction professionals who bring deep experience and genuine accountability to every project they oversee — that consistency in the people, in the process, and in the outcome is what keeps our clients returning.</p>
             </Reveal>
             <Reveal delay={120}>
-              <div className="eyebrow"><span className="dot"></span>CULTURE</div>
-              <h3 className="hd-3" style={{ marginTop: 12 }}>Stability and standards, at every level.</h3>
-              <p className="body-lg" style={{ marginTop: 14 }}>Anchor fosters a working culture that values long-term relationships — with clients, with trade partners, and within our own team. This is reflected in the quality and continuity of our work across every project category we serve. Experienced professionals at every level, not just at the top, is what makes the difference between a contractor and a firm clients can genuinely rely on.</p>
+              <div className="eyebrow" style={{ textAlign: 'center' }}><span className="dot"></span>CULTURE</div>
+              <h3 className="hd-3" style={{ marginTop: 12, textAlign: 'center' }}>Stability and standards, at every level.</h3>
+              <p className="body-lg" style={{ marginTop: 14, textAlign: 'center' }}>Anchor fosters a working culture that values long-term relationships — with clients, with trade partners, and within our own team. This is reflected in the quality and continuity of our work across every project category we serve. Experienced professionals at every level, not just at the top, is what makes the difference between a contractor and a firm clients can genuinely rely on.</p>
             </Reveal>
           </div>
         </div>
