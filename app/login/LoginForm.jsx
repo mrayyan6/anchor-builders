@@ -1,6 +1,5 @@
 'use client';
 import React, { useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '../../utils/supabase/client';
 import PasswordField from '../../src/PasswordField';
@@ -27,7 +26,9 @@ export default function LoginForm({ next }) {
     });
     if (signInErr) {
       setBusy(false);
-      setError(signInErr.message || 'Sign-in failed.');
+      // Neutral message — never surface provider/DB internals or reveal whether
+      // the email exists (avoids account enumeration).
+      setError('Sign-in failed. Please check your credentials and try again.');
       return;
     }
 
@@ -89,9 +90,6 @@ export default function LoginForm({ next }) {
         <span className="arr"></span>
       </button>
 
-      <div className="auth-footer">
-        New to Anchor? <Link href="/signup">Create an account</Link>
-      </div>
     </form>
   );
 }

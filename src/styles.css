@@ -425,19 +425,17 @@ ul { list-style: none; }
 /* ---------- Client cards (Clients page) ---------- */
 .client-card {
   background: var(--bg);
-  padding: 32px 28px;
-  display: flex; flex-direction: column; justify-content: space-between;
-  min-height: 200px;
+  padding: 18px 20px;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  min-height: 110px;
   position: relative; overflow: hidden;
   transition: background .35s var(--ease), color .35s var(--ease), transform .35s var(--ease), border-color .35s var(--ease);
   border: 1px solid transparent;
 }
 .client-card.warm-bg { background: var(--bg-2); }
-.client-card .cc-meta { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); position: relative; z-index: 2; }
 .client-card .cc-name-wrap { position: relative; z-index: 2; }
-.client-card .cc-name { font-family: var(--serif); font-size: 36px; line-height: 1.05; transition: color .35s var(--ease), transform .35s var(--ease), letter-spacing .35s var(--ease); display: inline-block; }
-.client-card .cc-full { font-family: var(--sans); font-size: 13px; color: var(--ink-3); margin-top: 6px; transition: color .35s var(--ease); }
-.client-card .cc-arrow { position: absolute; top: 24px; right: 24px; font-size: 18px; opacity: 0; transform: translate(-8px, 8px); transition: all .35s var(--ease); z-index: 2; }
+.client-card .cc-name { font-family: var(--serif); font-size: clamp(17px, 1.9vw, 26px); line-height: 1.12; transition: color .35s var(--ease), transform .35s var(--ease), letter-spacing .35s var(--ease); display: inline-block; }
+.client-card .cc-arrow { position: absolute; top: 16px; right: 16px; font-size: 16px; opacity: 0; transform: translate(-6px, 6px); transition: all .35s var(--ease); z-index: 3; }
 .client-card:hover .cc-arrow { opacity: 1; transform: translate(0,0); }
 
 /* Hover variants — driven by [data-hover-style] on body */
@@ -469,6 +467,33 @@ body[data-hover-style="highlight"] .client-card:hover .cc-full { color: rgba(20,
 /* expand — name letter-spacing & scale animates */
 body[data-hover-style="expand"] .client-card:hover .cc-name { letter-spacing: 0.02em; transform: translateX(4px); color: var(--accent, var(--warm-deep)); }
 body[data-hover-style="expand"] .client-card:hover { background: var(--bg-2); }
+
+/* Client logo — card thumbnail: positioned img, natural size, no letterboxing */
+.client-card .cc-logo {
+  position: absolute;
+  right: 16px;
+  top: 12px;
+  max-height: 90px;
+  width: auto;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Client logo — detail page header (above h1) */
+.client-detail-logo {
+  display: block;
+  max-width: 160px;
+  max-height: 9%;
+  width: auto;
+  height: auto;
+  margin-bottom: 20px;
+  object-fit: contain;
+  object-position: left center;
+}
+@media (max-width: 640px) { .client-detail-logo { max-width: 120px; max-height: 48px; } }
 
 /* ---------- Filter bar ---------- */
 .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
@@ -773,24 +798,24 @@ footer .ft-bot .socials a:hover { opacity: 1; }
   .diff-grid .diff-card.g6-half { grid-column: auto; }
 }
 
-/* ---------- Clients page — responsive sector grid ---------- */
+/* ---------- Clients page — 4-column grid ---------- */
 .clients-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 1px;
   background: var(--line);
   border: 1px solid var(--line);
 }
-.clients-grid .client-card { grid-column: span 2; }
+.clients-grid .client-card { grid-column: span 1; }
 .clients-grid .client-span-full { grid-column: 1 / -1; }
-.clients-grid .client-span-half { grid-column: span 3; }
-@media (max-width: 1100px) {
+.clients-grid .client-span-half { grid-column: span 2; }
+@media (max-width: 1000px) {
   .clients-grid { grid-template-columns: repeat(2, 1fr); }
   .clients-grid .client-card,
   .clients-grid .client-span-half { grid-column: span 1; }
   .clients-grid .client-span-full { grid-column: 1 / -1; }
 }
-@media (max-width: 640px) {
+@media (max-width: 560px) {
   .clients-grid { grid-template-columns: 1fr; }
   .clients-grid .client-card,
   .clients-grid .client-span-full,

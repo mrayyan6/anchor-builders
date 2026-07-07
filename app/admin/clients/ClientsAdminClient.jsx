@@ -1,9 +1,12 @@
 'use client';
-import React, { useState, useTransition } from 'react';
+import React, { useState, useTransition, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClientRow, updateClientRow, deleteClientRow } from './actions';
+import { createClient as createSupabaseClient } from '../../../utils/supabase/client';
+import { convertToWebp, isImageFile, MAX_UPLOAD_BYTES } from '../../../utils/image';
+import { createClientRow, updateClientRow, deleteClientRow, updateClientLogo, deleteClientLogo } from './actions';
 
 const SECTORS = ['Government', 'Retainer', 'Private'];
+const LOGO_BUCKET = 'project-images';
 
 function emptyForm() {
   return {
@@ -25,10 +28,18 @@ export default function ClientsAdminClient({ initial }) {
   const [error, setError] = useState('');
   const [flash, setFlash] = useState('');
 
+  const [logoState, setLogoState] = useState({ url: null, storagePath: null });
+  const [logoUploading, setLogoUploading] = useState(false);
+  const [logoError, setLogoError] = useState('');
+  const logoFileRef = useRef(null);
+  const supabase = createSupabaseClient();
+
   function startEdit(c) {
     setEditingId(c.id);
     setShowAdd(false);
     setError('');
+    setLogoError('');
+    setLogoState({ url: c.logo_url || null, storagePath: c.logo_storage_path || null });
     setDraft({
       name: c.name || '',
       full_name: c.full_name || '',
@@ -43,6 +54,8 @@ export default function ClientsAdminClient({ initial }) {
     setEditingId(null);
     setShowAdd(true);
     setError('');
+    setLogoError('');
+    setLogoState({ url: null, storagePath: null });
     setDraft(emptyForm());
   }
 
@@ -50,6 +63,8 @@ export default function ClientsAdminClient({ initial }) {
     setEditingId(null);
     setShowAdd(false);
     setError('');
+    setLogoError('');
+    setLogoState({ url: null, storagePath: null });
     setDraft(emptyForm());
   }
 
@@ -97,6 +112,75 @@ export default function ClientsAdminClient({ initial }) {
     submit(deleteClientRow, fd);
   }
 
+  async function handleLogoFile(file) {
+    if (!file || !editingId) return;
+    setLogoUploading(true);
+    setLogoError('');
+    try {
+      if (!isImageFile(file)) throw new Error('Not an image file.');
+      if (file.size > MAX_UPLOAD_BYTES) throw new Error('File too large (max 5 MB).');
+
+      const blob = await convertToWebp(file);
+      const path = `clients/${editingId}/logo.webp`;
+
+      const { error: upErr } = await supabase.storage
+        .from(LOGO_BUCKET)
+        .upload(path, blob, { contentType: 'image/webp', upsert: true });
+      if (upErr) throw upErr;
+
+      const { data: pub } = supabase.storage.from(LOGO_BUCKET).getPublicUrl(path);
+      const publicUrl = pub?.publicUrl;
+      if (!publicUrl) throw new Error('No public URL returned.');
+
+      const fd = new FormData();
+      fd.set('id', editingId);
+      fd.set('logo_url', publicUrl);
+      fd.set('logo_storage_path', path);
+      const res = await updateClientLogo(fd);
+      if (res?.error) throw new Error(res.error);
+
+      setLogoState({ url: publicUrl, storagePath: path });
+      router.refresh();
+    } catch (err) {
+      setLogoError(err?.message || 'Upload failed.');
+    }
+    setLogoUploading(false);
+    if (logoFileRef.current) logoFileRef.current.value = '';
+  }
+
+  function onLogoFilePicked(e) {
+    const file = e.target.files?.[0];
+    if (file) handleLogoFile(file);
+  }
+
+  function onLogoDrop(e) {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleLogoFile(file);
+  }
+
+  async function onDeleteLogo() {
+    if (!editingId) return;
+    const sure = confirm('Remove this logo?');
+    if (!sure) return;
+    setLogoUploading(true);
+    setLogoError('');
+    try {
+      if (logoState.storagePath) {
+        await supabase.storage.from(LOGO_BUCKET).remove([logoState.storagePath]);
+      }
+      const fd = new FormData();
+      fd.set('id', editingId);
+      const res = await deleteClientLogo(fd);
+      if (res?.error) throw new Error(res.error);
+      setLogoState({ url: null, storagePath: null });
+      router.refresh();
+    } catch (err) {
+      setLogoError(err?.message || 'Could not remove logo.');
+    }
+    setLogoUploading(false);
+  }
+
   const isEditing = (id) => editingId === id;
 
   return (
@@ -121,6 +205,7 @@ export default function ClientsAdminClient({ initial }) {
               <span>Cancel</span>
             </button>
           </div>
+          <p className="field-hint mono" style={{ marginTop: 12 }}>Logo can be added after creating the client.</p>
         </form>
       )}
 
@@ -153,15 +238,64 @@ export default function ClientsAdminClient({ initial }) {
                           <span>Cancel</span>
                         </button>
                       </div>
+
+                      {/* Logo — saves independently of the form */}
+                      <div className="client-logo-section">
+                        <span className="logo-section-label">Client Logo</span>
+                        {logoError && <div className="form-error" style={{ marginBottom: 8 }}>{logoError}</div>}
+                        {logoState.url ? (
+                          <div className="client-logo-preview">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={logoState.url} alt="Current logo" />
+                            <div className="logo-preview-actions">
+                              <label className="link-btn" style={{ cursor: 'pointer' }}>
+                                {logoUploading ? 'Uploading…' : 'Replace'}
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  ref={logoFileRef}
+                                  onChange={onLogoFilePicked}
+                                  disabled={logoUploading}
+                                  style={{ display: 'none' }}
+                                />
+                              </label>
+                              <button type="button" className="link-btn danger" onClick={onDeleteLogo} disabled={logoUploading}>
+                                Remove
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <label
+                            className="logo-upload-area"
+                            onDrop={onLogoDrop}
+                            onDragOver={(e) => e.preventDefault()}
+                          >
+                            <span>{logoUploading ? 'Uploading…' : 'Click or drag a logo here'}</span>
+                            <span className="mono small muted" style={{ marginTop: 4 }}>PNG, SVG, WebP · Max 5 MB · Converted to WebP</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              ref={logoFileRef}
+                              onChange={onLogoFilePicked}
+                              disabled={logoUploading}
+                              style={{ display: 'none' }}
+                            />
+                          </label>
+                        )}
+                      </div>
                     </form>
                   </td>
                 </tr>
               ) : (
                 <tr key={c.id}>
                   <td>
+                    {c.logo_url && (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src={c.logo_url} alt="" className="logo-thumb-sm" />
+                    )}
                     <div className="strong">{c.name}</div>
                     {c.full_name && <div className="muted small">{c.full_name}</div>}
-                    {c.testimonial_quote && <div className="muted small">“{c.testimonial_quote}”{c.testimonial_who ? ` — ${c.testimonial_who}` : ''}</div>}
+                    {c.testimonial_quote && <div className="muted small">"{c.testimonial_quote}"{c.testimonial_who ? ` — ${c.testimonial_who}` : ''}</div>}
                   </td>
                   <td>{c.sector || <em className="muted">—</em>}</td>
                   <td className="mono small">{c.since ?? '—'}</td>

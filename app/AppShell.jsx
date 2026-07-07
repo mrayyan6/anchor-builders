@@ -6,11 +6,10 @@ import { Nav, SiteFooter } from '../src/components';
 export default function AppShell({ children, auth = null }) {
   const pathname = usePathname() || '/';
 
-  // Admin, login & signup routes provide their own chrome — don't double-wrap.
+  // Admin & login routes provide their own chrome — don't double-wrap.
   const isStandalone =
     pathname.startsWith('/admin') ||
-    pathname === '/login' ||
-    pathname === '/signup';
+    pathname === '/login';
 
   // Transparent nav on the home hero and the new slug-based project detail
   // pages (/projects/[categorySlug]/[projectSlug]).

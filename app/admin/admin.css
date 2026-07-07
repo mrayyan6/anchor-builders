@@ -408,6 +408,42 @@
    so it applies to public pages — admin.css is only loaded on /admin, /login
    and /signup. Do not re-add it here. */
 
+/* ---------- Client logo admin ---------- */
+.logo-thumb-sm { height: 28px; width: auto; max-width: 60px; object-fit: contain; display: block; margin-bottom: 6px; }
+
+.client-logo-section { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
+.logo-section-label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 12px;
+}
+.client-logo-preview { display: flex; align-items: center; gap: 20px; }
+.client-logo-preview img { height: 52px; width: auto; max-width: 140px; object-fit: contain; border: 1px solid var(--line); padding: 8px 12px; background: var(--bg-2); }
+.logo-preview-actions { display: flex; flex-direction: column; gap: 6px; }
+
+.logo-upload-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px dashed var(--line);
+  padding: 28px 20px;
+  cursor: pointer;
+  text-align: center;
+  min-height: 90px;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--ink-2);
+  transition: border-color .2s var(--ease), background .2s var(--ease);
+}
+.logo-upload-area:hover { border-color: var(--ink-3); background: var(--bg-2); }
+.logo-upload-area .small { font-size: 11px; }
+.logo-upload-area .muted { color: var(--ink-3); }
+
 /* ---------- Responsive admin shell ---------- */
 @media (max-width: 900px) {
   .admin-shell { grid-template-columns: 1fr; }

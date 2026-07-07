@@ -1,58 +1,96 @@
 # Anchor Associates & Builders — Website
 
-A premium, multi-page website for **Anchor Associates & Builders** — a C-2 PEC registered construction & contracting firm based in Islamabad.
-
-Built with **Next.js 14 (App Router) + React 18**. All pages, animations, hover states, the cinematic hero, and the context-aware project swiper are wired up and ready.
+A premium corporate website for **Anchor Associates & Builders**, a Category C-2 PEC registered construction and contracting firm based in Islamabad. Fully dynamic — project portfolios, client rosters, and content are managed through a built-in admin panel backed by Supabase.
 
 ---
 
-## What's inside
+## Technologies
 
-```
-anchor-site/
-├── next.config.mjs       ← Next.js config (Unsplash image domain)
-├── jsconfig.json
-├── package.json
-├── app/
-│   ├── layout.jsx        ← root layout (fonts, CSS, AppShell)
-│   ├── AppShell.jsx      ← Nav, Footer, PageTransition wrapper
-│   ├── globals.css       ← imports design system + animation styles
-│   ├── not-found.jsx     ← 404 page
-│   ├── page.jsx          ← Home
-│   ├── about/page.jsx
-│   ├── services/
-│   │   ├── page.jsx
-│   │   └── [id]/page.jsx
-│   ├── projects/
-│   │   ├── page.jsx
-│   │   └── [id]/page.jsx
-│   ├── clients/
-│   │   ├── page.jsx
-│   │   └── [id]/page.jsx
-│   └── contact/page.jsx
-└── src/
-    ├── data.js           ← projects, clients, services, testimonials
-    ├── components.jsx    ← Nav, Footer, Hero, Swiper, ImgBox, etc.
-    ├── animations.jsx    ← Magnetic, Parallax, VelocityMarquee, PageTransition
-    ├── styles.css        ← design system + layouts
-    └── animations.css    ← animation styles
-```
-
-### Pages
-
-| Route | Page |
+| Layer | Technology |
 |---|---|
-| `/` | Home |
-| `/about` | About |
-| `/services` | Services overview |
-| `/services/:id` | Service detail (6 services) |
-| `/projects` | Projects index + category filter |
-| `/projects/:id` | Project detail (26 projects) |
-| `/clients` | Clients overview (16 clients) |
-| `/clients/:id` | Client detail |
-| `/contact` | Contact form |
+| Framework | Next.js 14 (App Router, React Server Components) |
+| UI | React 18, custom CSS design system (no Tailwind) |
+| Database & Auth | Supabase (PostgreSQL + Auth + Storage) |
+| Auth middleware | `@supabase/ssr` — cookie-based SSR sessions |
+| Deployment | Vercel |
+| Fonts | Cormorant Garamond · Manrope · JetBrains Mono (Google Fonts) |
+| Image storage | Supabase Storage (`project-images` bucket) |
 
-The project-detail page is **context-aware**: arriving from a category → "More in this category" swiper. Arriving from a client page → "More from this client" swiper.
+---
+
+## Key Features
+
+**Public site**
+- Cinematic hero with looping slides and caption
+- Featured projects swiper on the home page
+- Services section with per-category project listings
+- Project gallery pages with image lightbox
+- Client roster — 40+ clients in a dense 4-column grid
+- Individual client pages with testimonials and related projects
+- Client logos displayed on cards and detail pages
+- Reveal-on-scroll animations throughout
+- Six switchable card hover styles (slide, invert, lift, highlight, expand, underline)
+- Fully responsive down to mobile
+
+**Admin panel (`/admin`)**
+- Role-gated — only users with `role = 'admin'` in the `profiles` table can access
+- Manage projects: create, edit, delete, reorder, toggle active/featured
+- Manage project images: upload, set cover, reorder, delete; images converted to WebP before upload
+- Manage clients: create, edit, delete, upload/replace/remove logos (drag-and-drop supported)
+- Manage project categories: create, edit, delete
+
+**Security**
+- Content-Security-Policy, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy headers on every route
+- Session idle timeout — auto sign-out after 30 minutes of inactivity
+- Tab-close logout via `sessionStorage`
+- Open redirect protection on the login `?next=` parameter
+- Server actions validate admin role before every mutation
+
+---
+
+## Project Structure
+
+```
+app/
+├── layout.jsx               # Root layout — fonts, SessionGuard, AppShell
+├── AppShell.jsx             # Nav, footer, page transitions
+├── SessionGuard.jsx         # Client-side idle timeout + tab-close logout
+├── page.jsx                 # Home
+├── about/page.jsx
+├── services/
+│   ├── page.jsx
+│   └── [id]/page.jsx
+├── projects/
+│   ├── page.jsx
+│   ├── [categorySlug]/page.jsx
+│   └── [categorySlug]/[projectSlug]/page.jsx
+├── clients/
+│   ├── page.jsx             # 4-column client roster grid
+│   └── [id]/page.jsx        # Client detail
+├── contact/page.jsx
+├── login/                   # Auth pages
+├── admin/
+│   ├── page.jsx             # Dashboard
+│   ├── projects/            # Project CRUD + image management
+│   ├── clients/             # Client CRUD + logo upload
+│   └── categories/          # Category CRUD
+└── auth/signout/route.js    # POST sign-out handler
+
+lib/queries.js               # All Supabase read queries
+src/
+├── data.js                  # Curated client list, site copy, differentiators
+├── components.jsx           # Shared UI components
+├── styles.css               # Design system, layout, component CSS
+└── animations.css           # Reveal, page transition animations
+utils/
+├── supabase/                # Browser + server + middleware Supabase clients
+├── clients.js               # canonicalClientKey, getCuratedClientOptions
+├── image.js                 # convertToWebp, isImageFile, MAX_UPLOAD_BYTES
+└── slug.js                  # toSlug
+middleware.js                # Session refresh + /admin auth gate
+next.config.mjs              # Security headers, image optimization config
+supabase/migrations/         # SQL migration files
+```
 
 ---
 
@@ -60,118 +98,101 @@ The project-detail page is **context-aware**: arriving from a category → "More
 
 ### Prerequisites
 
-**Node.js 18+** and **npm**:
+- Node.js 18+
+- A [Supabase](https://supabase.com) project
+
+### 1. Install dependencies
 
 ```bash
-node --version    # v18.x or higher
-npm --version
-```
-
-If Node isn't installed, get it at [nodejs.org](https://nodejs.org).
-
-### Install
-
-```bash
-cd path/to/anchor-site
 npm install
 ```
 
-### Dev server
+### 2. Environment variables
+
+Create a `.env.local` file in the project root:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+Both values are in the Supabase dashboard under **Project Settings → API**.
+
+### 3. Database setup
+
+
+The core tables (`profiles`, `projects`, `project_categories`, `project_images`, `clients`) must also exist. 
+
+
+### 4. Storage bucket
+
+In the Supabase dashboard, create a public storage bucket named **`project-images`**. This bucket holds both project gallery images and client logos.
+
+### 5. Create an admin user
+
+1. Create a user in Supabase Auth (Dashboard → Authentication → Users → Add user)
+---
+
+## Running Locally
 
 ```bash
 npm run dev
 ```
 
-Opens at **http://localhost:3000**.
+Opens at **http://localhost:3000**. The admin panel is at **http://localhost:3000/admin**.
 
 ### Production build
 
 ```bash
-npm run build     # outputs to .next/
-npm run start     # serves the production build locally
+npm run build
+npm run start
 ```
 
 ---
 
-## Deployment
+## Deployment (Vercel)
 
-**Vercel** (recommended — detects Next.js automatically):
-```bash
-npx vercel
-```
-
-**Netlify / Cloudflare Pages** — connect the repo and set:
-- Build command: `npm run build`
-- Output directory: `.next`
+1. Push the repo to GitHub
+2. Import into [Vercel](https://vercel.com)
+3. Add the two environment variables (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`) under **Project Settings → Environment Variables**
+4. Deploy — Vercel auto-detects Next.js
 
 ---
 
-## Editing content
+## Customization
 
-### Projects, clients, services
+### Client ordering
 
-Everything lives in `src/data.js` as plain JavaScript objects:
+The 40-client curated list and its display order live in `src/data.js` in the `CLIENTS` array. Reordering the array changes the order on the clients page. The database can override individual client details (name, full name, sector, since year, testimonial, logo) but insertion order follows `CLIENTS`.
 
-```js
-const PROJECTS = [
-  { id: 'azri', name: 'PARC AZRI Office & Laboratory', ... },
-];
-```
+### Card hover style
 
-Edit, add, or remove entries here and the site updates everywhere.
+Controlled by `data-hover-style` on `<body>` in `app/AppShell.jsx`. Options: `slide` (default), `invert`, `lift`, `highlight`, `expand`, `underline`.
 
-### Swap stock photos for real ones
+### Design tokens
 
-1. Place photos in `public/images/`.
-2. In `src/data.js`, replace Unsplash URLs in the `IMG` block:
-   ```js
-   archA: '/images/parc-azri.jpg',
-   ```
-
-### Colours & typography
-
-Design tokens are at the top of `src/styles.css`:
+Colors, fonts, and spacing are CSS variables at the top of `src/styles.css`:
 
 ```css
 :root {
-  --bg: #f6f4ef;        /* warm off-white */
-  --ink: #14110d;       /* near-black */
-  --warm: #b8a888;      /* sand accent */
+  --bg: #f6f4ef;          /* warm off-white */
+  --ink: #14110d;         /* near-black */
+  --warm: #b8a888;        /* sand accent */
   --warm-deep: #7d6f55;
   --serif: 'Cormorant Garamond', serif;
   --sans: 'Manrope', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
 }
 ```
 
-### Hero images & captions
-
-In `app/page.jsx`, edit the `heroFrames` array at the top of `HomePage`:
-
-```js
-const heroFrames = [
-  { src: 'https://...', caption: 'PROJECT NAME · LOCATION' },
-];
-```
-
-### Client card hover style
-
-Controlled by `data-hover-style` on `<body>` in `app/AppShell.jsx`. Options: `invert`, `slide`, `lift`, `highlight`, `expand`, `underline`. Currently set to `slide` (black block sweeps in).
-
 ---
 
-## Troubleshooting
+## Database Tables
 
-**Images don't load** — the site uses Unsplash CDN by default. `next/image` proxies them through `/_next/image`. If blocked, swap to local images (see above).
-
-**Nav stays transparent** — by design on the home page and individual project pages; it turns solid after scrolling 60px.
-
-**Animations don't fire** — reveal-on-scroll uses `IntersectionObserver`. Disable browser extensions that block JS if you see static content.
-
----
-
-## Credits
-
-- Fonts: Cormorant Garamond, Manrope, JetBrains Mono (Google Fonts)
-- Stock imagery: Unsplash — replace with real project photos before going live
-
-— Built for Abdullah · Anchor Associates & Builders
+| Table | Purpose |
+|---|---|
+| `profiles` | Maps Supabase auth users to roles (`admin` / `viewer`) |
+| `project_categories` | Project categories shown in the services section |
+| `projects` | All construction projects |
+| `project_images` | Gallery images per project, stored in Supabase Storage |
+| `clients` | Client roster with optional testimonials and logos |

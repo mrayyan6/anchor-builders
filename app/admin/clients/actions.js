@@ -70,6 +70,40 @@ export async function updateClientRow(form) {
   return { ok: true };
 }
 
+export async function updateClientLogo(form) {
+  const supabase = await requireAdmin();
+  const id = String(form.get('id') || '');
+  if (!id) return { error: 'Missing client id.' };
+  const logo_url = String(form.get('logo_url') || '').trim() || null;
+  const logo_storage_path = String(form.get('logo_storage_path') || '').trim() || null;
+  const { error } = await supabase
+    .from('clients')
+    .update({ logo_url, logo_storage_path })
+    .eq('id', id);
+  if (error) {
+    console.error('updateClientLogo:', error.message);
+    return { error: 'Could not save logo. Please try again.' };
+  }
+  bust();
+  return { ok: true };
+}
+
+export async function deleteClientLogo(form) {
+  const supabase = await requireAdmin();
+  const id = String(form.get('id') || '');
+  if (!id) return { error: 'Missing client id.' };
+  const { error } = await supabase
+    .from('clients')
+    .update({ logo_url: null, logo_storage_path: null })
+    .eq('id', id);
+  if (error) {
+    console.error('deleteClientLogo:', error.message);
+    return { error: 'Could not remove logo. Please try again.' };
+  }
+  bust();
+  return { ok: true };
+}
+
 export async function deleteClientRow(form) {
   const supabase = await requireAdmin();
   const id = String(form.get('id') || '');

@@ -7,7 +7,7 @@ export async function updateSession(request) {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const pathname = request.nextUrl.pathname;
   const isAdminPath = pathname.startsWith('/admin');
-  const isAuthPage = pathname === '/login' || pathname === '/signup';
+  const isAuthPage = pathname === '/login';
 
   if (!supabaseUrl || !supabaseAnonKey) {
     console.error(

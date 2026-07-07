@@ -11,3 +11,4 @@ scripts/*
 PROJECT_CONTEXT.md
 _image-backups
 supabase/*
+.claude/*
