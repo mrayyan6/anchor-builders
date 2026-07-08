@@ -5,20 +5,28 @@ import {
   Reveal, ImgBox, Hero, ClientMarquee, CTABlock, QuoteBlock,
 } from '../src/components';
 import HomeFeatured from './HomeFeatured';
-import { getFeaturedProjects } from '../lib/queries';
+import { getFeaturedProjects, getServiceCovers, getActiveHeroSlides } from '../lib/queries';
 import { balancedSpanClass } from '../src/grid';
 
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const featured = await getFeaturedProjects(6);
+  const [featured, covers, heroSlides] = await Promise.all([
+    getFeaturedProjects(6),
+    getServiceCovers(),
+    getActiveHeroSlides(),
+  ]);
 
-  const heroFrames = [
+  // Admin-managed hero slides (min 2) take over; otherwise the static fallback.
+  const fallbackHeroFrames = [
     { src: '/featured/07.jpg', caption: 'PARC-AZRC Umerkot' },
     { src: '/featured/15.jpg', caption: 'NUML Canopies' },
     { src: '/featured/13.jpg', caption: 'Maze Isolation Facility NARC' },
     { src: '/featured/05.jpg', caption: 'Residential Villas Kingdom Valley' },
   ];
+  const heroFrames = heroSlides.length >= 2
+    ? heroSlides.map((s) => ({ src: s.image_url, caption: s.caption || '' }))
+    : fallbackHeroFrames;
 
   // Show 6 featured services on home (full list lives on /services)
   const featuredServices = SITE_DATA.SERVICES.slice(0, 6);
@@ -108,7 +116,7 @@ export default async function HomePage() {
             {featuredServices.map((s) => (
               <Reveal key={s.id}>
                 <Link href={`/services/${s.id}`} className="svc-card">
-                  <ImgBox src={s.hero} ratio="r-169" label={s.name} />
+                  <ImgBox src={covers[s.id] || s.hero} ratio="r-169" label={s.name} />
                   <span className="num">— {s.number}</span>
                   <div className="meta-row"><h3>{s.name}</h3><span className="arrow">↗</span></div>
                   <p>{s.description}</p>

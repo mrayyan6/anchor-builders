@@ -2,7 +2,7 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import { SITE_DATA } from '../../../src/data';
 import { ImgBox, CTABlock } from '../../../src/components';
-import { getProjectsByCategoryName } from '../../../lib/queries';
+import { getProjectsByCategoryName, getServiceCovers } from '../../../lib/queries';
 import ServiceProjects from './ServiceProjects';
 
 export const dynamic = 'force-dynamic';
@@ -18,6 +18,8 @@ export default async function ServiceDetailPage({ params }) {
   // identical to /projects filtered to this category (same cover images too).
   const { category, projects } = await getProjectsByCategoryName(svc.name);
   const catName = category?.name || svc.name;
+  const covers = await getServiceCovers();
+  const heroImg = covers[svc.id] || svc.hero;
 
   return (
     <main className="page">
@@ -43,7 +45,7 @@ export default async function ServiceDetailPage({ params }) {
                 <div key={i} className="row"><span className="k">{String(i+1).padStart(2,'0')}</span><span>{s}</span></div>
               ))}
             </div>
-            <ImgBox src={svc.hero} ratio="r-43" />
+            <ImgBox src={heroImg} ratio="r-43" />
           </div>
         </div>
       </section>

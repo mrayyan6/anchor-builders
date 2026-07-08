@@ -56,7 +56,7 @@ export default function ImagesClient({ project, categorySlug, initialImages }) {
           throw new Error(`"${file.name}" is not an image.`);
         }
         if (file.size > MAX_UPLOAD_BYTES) {
-          throw new Error(`"${file.name}" is larger than 5 MB.`);
+          throw new Error(`"${file.name}" is larger than 50 MB.`);
         }
 
         const blob = await convertToWebp(file);
@@ -169,7 +169,7 @@ export default function ImagesClient({ project, categorySlug, initialImages }) {
           />
         </label>
         <div className="mono small muted">
-          Auto-converted to WebP · Max 5MB per image
+          Auto-converted to WebP · Max 50MB per image
         </div>
       </div>
 

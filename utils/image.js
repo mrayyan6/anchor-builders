@@ -38,7 +38,8 @@ export async function convertToWebp(file, quality = 0.85, maxDimension = 2400) {
   }
 }
 
-export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+// Matches Supabase Storage's default per-file upload limit.
+export const MAX_UPLOAD_BYTES = 50 * 1024 * 1024;
 
 export function isImageFile(file) {
   return Boolean(file && file.type && file.type.startsWith('image/'));

@@ -2,10 +2,13 @@ import React from 'react';
 import Link from 'next/link';
 import { SITE_DATA } from '../../src/data';
 import { Reveal, ImgBox, CTABlock } from '../../src/components';
+import { getServiceCovers } from '../../lib/queries';
 
 export const metadata = { title: 'Services — Anchor Associates & Builders' };
+export const dynamic = 'force-dynamic';
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const covers = await getServiceCovers();
   return (
     <main className="page">
       <header className="page-header page-header-center">
@@ -23,7 +26,7 @@ export default function ServicesPage() {
             {SITE_DATA.SERVICES.map((s) => (
               <Reveal key={s.id}>
                 <Link href={`/services/${s.id}`} className="svc-card">
-                  <ImgBox src={s.hero} ratio="r-169" label={s.name} />
+                  <ImgBox src={covers[s.id] || s.hero} ratio="r-169" label={s.name} />
                   <span className="num">— {s.number}</span>
                   <div className="meta-row"><h3>{s.name}</h3><span className="arrow">↗</span></div>
                   <p>{s.description}</p>

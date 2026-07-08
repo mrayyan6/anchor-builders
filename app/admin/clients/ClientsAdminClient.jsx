@@ -118,7 +118,7 @@ export default function ClientsAdminClient({ initial }) {
     setLogoError('');
     try {
       if (!isImageFile(file)) throw new Error('Not an image file.');
-      if (file.size > MAX_UPLOAD_BYTES) throw new Error('File too large (max 5 MB).');
+      if (file.size > MAX_UPLOAD_BYTES) throw new Error('File too large (max 50 MB).');
 
       const blob = await convertToWebp(file);
       const path = `clients/${editingId}/logo.webp`;
@@ -271,7 +271,7 @@ export default function ClientsAdminClient({ initial }) {
                             onDragOver={(e) => e.preventDefault()}
                           >
                             <span>{logoUploading ? 'Uploading…' : 'Click or drag a logo here'}</span>
-                            <span className="mono small muted" style={{ marginTop: 4 }}>PNG, SVG, WebP · Max 5 MB · Converted to WebP</span>
+                            <span className="mono small muted" style={{ marginTop: 4 }}>PNG, SVG, WebP · Max 50 MB · Converted to WebP</span>
                             <input
                               type="file"
                               accept="image/*"
