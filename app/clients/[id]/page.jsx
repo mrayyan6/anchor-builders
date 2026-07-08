@@ -23,10 +23,6 @@ export default async function ClientDetailPage({ params }) {
         <div className="container-wide">
           <div className="crumb"><Link href="/clients" style={{ color: 'inherit' }}>— CLIENTS</Link> / {client.name.toUpperCase()}</div>
           <div className="title">
-            {client.logoUrl && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={client.logoUrl} alt={`${client.name} logo`} className="client-detail-logo" />
-            )}
             <h1 className="hd-display" style={{ color: 'var(--on-dark)' }}>{client.name}.</h1>
             <div>
               <p className="lede" style={{ color: 'rgba(236,232,223,0.85)', marginBottom: 16 }}>{client.fullName}</p>
