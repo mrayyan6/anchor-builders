@@ -373,12 +373,14 @@
 }
 .image-card.is-cover { border-color: var(--warm-deep); box-shadow: inset 0 0 0 1px var(--warm-deep); }
 .image-thumb {
+  position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
-  object-fit: cover;
   display: block;
+  overflow: hidden;
   background: var(--bg-2);
 }
+.image-thumb img { object-fit: cover; }
 .image-meta { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
 .image-meta .row { display: flex; justify-content: space-between; align-items: center; }
 .image-meta .row.gap { gap: 10px; justify-content: flex-start; }

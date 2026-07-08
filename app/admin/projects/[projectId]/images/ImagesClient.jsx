@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useTransition, useRef } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { createClient } from '../../../../../utils/supabase/client';
 import { convertToWebp, isImageFile, MAX_UPLOAD_BYTES } from '../../../../../utils/image';
@@ -66,7 +67,7 @@ export default function ImagesClient({ project, categorySlug, initialImages }) {
 
         const { error: upErr } = await supabase.storage
           .from(STORAGE_BUCKET)
-          .upload(path, blob, { contentType: 'image/webp', upsert: false });
+          .upload(path, blob, { contentType: 'image/webp', upsert: false, cacheControl: '31536000' });
         if (upErr) throw upErr;
 
         const { data: publicData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
@@ -181,8 +182,15 @@ export default function ImagesClient({ project, categorySlug, initialImages }) {
         )}
         {initialImages.map((img, idx) => (
           <div key={img.id} className={`image-card${img.is_cover ? ' is-cover' : ''}`}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={img.public_url} alt={img.alt_text || ''} className="image-thumb" loading="lazy" />
+            <div className="image-thumb">
+              <Image
+                src={img.public_url}
+                alt={img.alt_text || ''}
+                fill
+                sizes="(max-width: 900px) 50vw, 260px"
+                style={{ objectFit: 'cover' }}
+              />
+            </div>
             <div className="image-meta">
               <div className="row">
                 <span className="mono small">#{idx + 1}</span>

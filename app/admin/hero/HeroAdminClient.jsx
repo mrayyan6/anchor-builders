@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect, useTransition, useRef } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { createClient } from '../../../utils/supabase/client';
 import { convertToWebp, isImageFile, MAX_UPLOAD_BYTES } from '../../../utils/image';
@@ -70,7 +71,7 @@ export default function HeroAdminClient({ initial, projectImages = [] }) {
       const path = `hero/${crypto.randomUUID()}.webp`;
       const { error: upErr } = await supabase.storage
         .from(STORAGE_BUCKET)
-        .upload(path, blob, { contentType: 'image/webp', upsert: true });
+        .upload(path, blob, { contentType: 'image/webp', upsert: true, cacheControl: '31536000' });
       if (upErr) throw upErr;
 
       const { data: pub } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
@@ -200,8 +201,7 @@ export default function HeroAdminClient({ initial, projectImages = [] }) {
                         disabled={pending || uploading}
                         title="Use this image as a hero slide"
                       >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={img.url} alt="" loading="lazy" />
+                        <Image src={img.url} alt="" fill sizes="140px" style={{ objectFit: 'cover' }} />
                       </button>
                     ))}
                   </div>
@@ -221,8 +221,13 @@ export default function HeroAdminClient({ initial, projectImages = [] }) {
           return (
             <div key={slide.id} className="cover-card">
               <div className="cover-thumb static">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={slide.image_url} alt={slide.caption || 'Hero slide'} />
+                <Image
+                  src={slide.image_url}
+                  alt={slide.caption || 'Hero slide'}
+                  fill
+                  sizes="(max-width: 900px) 100vw, 300px"
+                  style={{ objectFit: 'cover' }}
+                />
               </div>
               <div className="cover-meta">
                 <div className="field">

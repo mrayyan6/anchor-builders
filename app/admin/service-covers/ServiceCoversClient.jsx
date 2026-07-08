@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useRef } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { createClient } from '../../../utils/supabase/client';
 import { convertToWebp, isImageFile, MAX_UPLOAD_BYTES } from '../../../utils/image';
@@ -47,7 +48,7 @@ function ServiceCoverCard({ svc, supabase, onSaved }) {
 
       const { error: upErr } = await supabase.storage
         .from(STORAGE_BUCKET)
-        .upload(path, blob, { contentType: 'image/webp', upsert: true });
+        .upload(path, blob, { contentType: 'image/webp', upsert: true, cacheControl: '31536000' });
       if (upErr) throw upErr;
 
       const { data: pub } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
@@ -97,8 +98,7 @@ function ServiceCoverCard({ svc, supabase, onSaved }) {
         title="Click or drag an image to replace"
       >
         {shown ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={shown} alt={svc.name} />
+          <Image src={shown} alt={svc.name} fill sizes="(max-width: 900px) 100vw, 300px" style={{ objectFit: 'cover' }} />
         ) : (
           <span className="cover-ph">No image</span>
         )}

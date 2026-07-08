@@ -125,7 +125,7 @@ export default function ClientsAdminClient({ initial }) {
 
       const { error: upErr } = await supabase.storage
         .from(LOGO_BUCKET)
-        .upload(path, blob, { contentType: 'image/webp', upsert: true });
+        .upload(path, blob, { contentType: 'image/webp', upsert: true, cacheControl: '31536000' });
       if (upErr) throw upErr;
 
       const { data: pub } = supabase.storage.from(LOGO_BUCKET).getPublicUrl(path);
